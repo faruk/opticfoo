@@ -2,6 +2,8 @@ from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker
 from operationMap import operationMap
+from HUD import HUD
+from MicrophoneAnalyzer import SoundAnalyzer
 from visuals.monitor.Monitor import Monitor
 from visuals.enterprise.Enterprise import Enterprise
 from visuals.videobackground.VideoBackground import VideoBackground
@@ -13,7 +15,7 @@ class VRC(ShowBase):
         ShowBase.__init__(self)
 
         # set up another camera to view stuff in other window
-        self.otherWin = self openWindow(makeCamera = 0)
+        self.otherWin = self.openWindow(makeCamera = 0)
         self.otherCam = self.makeCamera(self.otherWin)
 
         # allocate visuals
@@ -22,6 +24,12 @@ class VRC(ShowBase):
 
         self.op = operationMap
         self.mode = self.op['mode']
+
+        self.hud = HUD()
+        self.hudToggle = -1
+        self.setFrameRateMeter(True)
+
+        self.snd = SoundAnalyzer()
 
         # movement keys
         self.accept('a', self.setOperation, ['a'])
@@ -109,8 +117,28 @@ class VRC(ShowBase):
         self.accept('9-up', self.setOperation, ['9-up'])
         self.accept('0', self.setOperation, ['0'])
         self.accept('0-up', self.setOperation, ['0-up'])
+        self.accept('`', self.toggleHud)
 
-        self.taskMgr.add(self.keyboardAction, 'keyboardAction')
+        self.taskMgr.add(self.setOperation, 'keyboardAction', sort = 1, priority = 3)
+        self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
+        self.taskMgr.add(self.analyzeSound, 'soundAnalyzer', sort = 1, priority = 1)
+
+    def analyzeSound(self, task):
+        self.snd.analyze()
+        return task.cont
+
+    def displayOperationHud(self, task):
+        self.hud.updateOperationMap(self.op)
+        return task.cont
+
+    def toggleHud(self):
+        self.hudToggle = -self.hudToggle
+        if self.hudToggle < 0:
+            self.taskMgr.remove('operationHud')
+            self.hud.clear()
+        else:
+            self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
+        print self.hudToggle
 
     def setOperation(self, key):
         if self.mode == "escaped" : self.setMode(key)
@@ -126,8 +154,9 @@ class VRC(ShowBase):
         if key == "b" : self.mode = 'music'
         if key == "n" : self.mode = 'light'
         if key == "i" : self.mode = 'insert'
+        self.setOperationMap('mode', self.mode)
 
-    def setCamOperation(key):
+    def setCamOperation(self, key):
         if key == 'a' : self.setOperationMap('cam-left', 1)
         if key == 'a-up' : self.setOperationMap('cam-left', 0)
         if key == 'd' : self.setOperationMap('cam-right', 1)
@@ -154,7 +183,7 @@ class VRC(ShowBase):
         if key == 'g-up': self.setOperationMap('cam-sync-toggle', -self.op['cam-sync-toggle'])
         if key == 't-up': self.setOperationMap('cam-sync-to', -self.op['cam-sync-to'])
 
-    def setVisualOperation(key):
+    def setVisualOperation(self,key):
         if key == 'a' : self.setOperationMap('visual-left', 1)
         if key == 'a-up' : self.setOperationMap('visual-left', 0)
         if key == 'd' : self.setOperationMap('visual-right', 1)
@@ -291,4 +320,4 @@ class VRC(ShowBase):
         self.activeVisual.setR(self.activeVisual, -self.visualMovementSpeed)
 
     def displayInfo(self):
-        
+        self.hud.updateOperationMap(self.op)

@@ -8,7 +8,7 @@ class SoundAnalyzer():
     def __init__(self):
         self.nfreq = 1024/2+1
         self.low_cut_f = 100
-        self.high_cut_f = 8000
+        self.high_cut_f = 1000
         self.amp_thres = 10.0
         self.rate = 44100
         print alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NONBLOCK
@@ -33,6 +33,7 @@ class SoundAnalyzer():
 
     def analyze(self):
         l,data = self.inp.read()
+        print l
         if l:
             i = 0
             for x in self.indizes:

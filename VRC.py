@@ -18,6 +18,7 @@ class VRC(ShowBase):
 
         # allocate visuals
         self.visuals = []
+        self.activeVisual = False
 
         self.op = operationMap
         self.mode = self.op['mode']
@@ -131,10 +132,10 @@ class VRC(ShowBase):
         if key == 'a-up' : self.setOperationMap('cam-left', 0)
         if key == 'd' : self.setOperationMap('cam-right', 1)
         if key == 'd-up' : self.setOperationMap('cam-rigt', 0)
-        if key == 'w' : self.setOperationMap('cam-up', 1)
-        if key == 'w-up' : self.setOperationMap('cam-up', 0)
-        if key == 's' : self.setOperationMap('cam-down', 1)
-        if key == 's-up' : self.setOperationMap('cam-down', 0)
+        if key == 'w' : self.setOperationMap('cam-forward', 1)
+        if key == 'w-up' : self.setOperationMap('cam-forward', 0)
+        if key == 's' : self.setOperationMap('cam-backward', 1)
+        if key == 's-up' : self.setOperationMap('cam-backward', 0)
         if key == 'h' : self.setOperationMap('cam-rotate-left', 1)
         if key == 'h-up' : self.setOperationMap('cam-rotate-left', 0)
         if key == 'l' : self.setOperationMap('cam-rotate-right', 1)
@@ -143,11 +144,15 @@ class VRC(ShowBase):
         if key == 'j-up' : self.setOperationMap('cam-rotate-down', 0)
         if key == 'k' : self.setOperationMap('cam-rotate-up', 1)
         if key == 'k-up' : self.setOperationMap('cam-rotate-up', 0)
+        if key == 'page_up' : self.setOperationMap('cam-up', 1)
+        if key == 'page_up-up' : self.setOperationMap('cam-up', 0)
+        if key == 'page_down' : self.setOperationMap('cam-down', 1)
+        if key == 'page_down-up' : self.setOperationMap('cam-down', 0)
         if key == 'r' : self.setOperationMap('cam-reset', 1)
         if key == 'r-up': self.setOperationMap('cam-reset', 0)
-        if key == 'f-up': self.setOperation('cam-fix-toggle', -self.op['cam-fix-toggle'])
-        if key == 'g-up': self.setOperation('cam-sync-toggle', -self.op['cam-sync-toggle'])
-        if key == 't-up': self.setOperation('cam-sync-to', -self.op['cam-sync-to'])
+        if key == 'f-up': self.setOperationMap('cam-fix-toggle', -self.op['cam-fix-toggle'])
+        if key == 'g-up': self.setOperationMap('cam-sync-toggle', -self.op['cam-sync-toggle'])
+        if key == 't-up': self.setOperationMap('cam-sync-to', -self.op['cam-sync-to'])
 
     def setVisualOperation(key):
         if key == 'a' : self.setOperationMap('visual-left', 1)
@@ -187,3 +192,103 @@ class VRC(ShowBase):
         if key == '0' : self.setOperationMap('visual-effect0', 1)
         if key == '0-up' : self.setOperationMap('visual-effect0', 0)
 
+    def setOperationMap(self, key, value):
+        self.op[key] = value
+
+    def executeOperation(self):
+        # camera operations
+        if self.op['cam-left'] == 1: self.moveCamLeft()
+        if self.op['cam-right'] == 1: self.moveCamRight()
+        if self.op['cam-up'] == 1: self.moveCamUp()
+        if self.op['cam-down'] == 1: self.moveCamDown()
+        if self.op['cam-forward'] == 1: self.moveCamForward()
+        if self.op['cam-backward'] == 1: self.moveCamBackward()
+        if self.op['cam-rotate-left'] == 1: self.rotateCamLeft()
+        if self.op['cam-rotate-right'] == 1: self.rotateCamRight()
+        if self.op['cam-rotate-up'] == 1: self.rotateCamUp()
+        if self.op['cam-rotate-down'] == 1: self.rotateCamDown()
+        if self.op['cam-reset'] == 1: self.resetCam()
+
+        # visual operations
+        if self.op['visual-left'] == 1: self.moveVisualLeft()
+        if self.op['visual-right'] == 1: self.moveVisualRight()
+        if self.op['visual-up'] == 1: self.moveVisualUp()
+        if self.op['visual-down'] == 1: self.moveVisualDown()
+        if self.op['visual-forward'] == 1: self.moveVisualForward()
+        if self.op['visual-backward'] == 1: self.moveVisualBackward()
+        if self.op['visual-rotate-left'] == 1: self.rotateVisualLeft()
+        if self.op['visual-rotate-right'] == 1: self.rotateVisualRight()
+        if self.op['visual-rotate-up'] == 1: self.rotateVisualUp()
+        if self.op['visual-rotate-down'] == 1: self.rotateVisualDown()
+
+    def moveCamLeft(self):
+        self.cam.setX(self.cam, +self.camSpeed)
+
+    def moveCamRight(self):
+        self.cam.setX(self.cam, -self.camSpeed)
+
+    def moveCamUp(self):
+        self.cam.setZ(self.cam, +self.camSpeed)
+
+    def moveCamDown(self):
+        self.cam.setZ(self.cam, -self.camSpeed)
+
+    def moveCamForward(self):
+        self.cam.setY(self.cam, +self.camSpeed)
+
+    def moveCamBackward(self):
+        self.cam.setY(self.cam, -self.camSpeed)
+
+    def rotateCamLeft(self):
+        self.cam.setH(self.cam, +self.camSpeed)
+
+    def rotateCamRight(self):
+        self.cam.setH(self.cam, -self.camSpeed)
+
+    def rotateCamUp(self):
+        self.cam.setP(self.cam, +self.camSpeed)
+
+    def rotateCamDown(self):
+        self.cam.setP(self.cam, -self.camSpeed)
+
+    def resetCam(self):
+        pass
+
+    def moveVisualLeft(self):
+        self.activeVisual.setX(self.activeVisual, +self.visualMovementSpeed)
+
+    def moveVisualRight(self):
+        self.activeVisual.setX(self.activeVisual, -self.visualMovementSpeed)
+
+    def moveVisualUp(self):
+        self.activeVisual.setY(self.activeVisual, +self.visualMovementSpeed)
+
+    def moveVisualDown(self):
+        self.activeVisual.setY(self.activeVisual, -self.visualMovementSpeed)
+
+    def moveVisualForward(self):
+        self.activeVisual.setZ(self.activeVisual, +self.visualMovementSpeed)
+
+    def moveVisualBackward(self):
+        self.activeVisual.setZ(self.activeVisual, -self.visualMovementSpeed)
+
+    def rotateVisualLeft(self):
+        self.activeVisual.setH(self.activeVisual, +self.visualMovementSpeed)
+
+    def rotateVisualRight(self):
+        self.activeVisual.setH(self.activeVisual, -self.visualMovementSpeed)
+
+    def rotateVisualUp(self):
+        self.activeVisual.setP(self.activeVisual, +self.visualMovementSpeed)
+
+    def rotateVisualDown(self):
+        self.activeVisual.setP(self.activeVisual, -self.visualMovementSpeed)
+
+    def rollVisualLeft(self):
+        self.activeVisual.setR(self.activeVisual, +self.visualMovementSpeed)
+
+    def rollVisualRight(self):
+        self.activeVisual.setR(self.activeVisual, -self.visualMovementSpeed)
+
+    def displayInfo(self):
+        

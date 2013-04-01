@@ -7,7 +7,7 @@ class SoundAnalyzer():
 
     def __init__(self):
         self.nfreq = 1024/2+1
-        self.low_cut_f = 1500
+        self.low_cut_f = 100
         self.high_cut_f = 8000
         self.amp_thres = 10.0
         self.rate = 44100

@@ -30,6 +30,7 @@ class VRC(ShowBase):
         self.setFrameRateMeter(True)
 
         self.snd = SoundAnalyzer()
+        self.snd.start()
 
         # movement keys
         self.accept('a', self.setOperation, ['a'])
@@ -38,10 +39,12 @@ class VRC(ShowBase):
         self.accept('d-up', self.setOperation, ['d-up'])
         self.accept('w', self.setOperation, ['w'])
         self.accept('w-up', self.setOperation, ['w-up'])
+        self.accept('s', self.setOperation, ['s'])
+        self.accept('s-up', self.setOperation, ['s-up'])
         self.accept('d', self.setOperation, ['d'])
         self.accept('d-up', self.setOperation, ['d-up'])
         self.accept('h', self.setOperation, ['h'])
-        self.accept('h-up', self.setOperation, ['h'])
+        self.accept('h-up', self.setOperation, ['h-up'])
         self.accept('j', self.setOperation, ['j'])
         self.accept('j-up', self.setOperation, ['j-up'])
         self.accept('k', self.setOperation, ['k'])
@@ -121,7 +124,7 @@ class VRC(ShowBase):
 
         self.taskMgr.add(self.setOperation, 'keyboardAction', sort = 1, priority = 3)
         self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
-        self.taskMgr.add(self.analyzeSound, 'soundAnalyzer', sort = 1, priority = 1)
+#        self.taskMgr.add(self.analyzeSound, 'soundAnalyzer', sort = 1, priority = 1)
 
     def analyzeSound(self, task):
         self.snd.analyze()
@@ -160,7 +163,7 @@ class VRC(ShowBase):
         if key == 'a' : self.setOperationMap('cam-left', 1)
         if key == 'a-up' : self.setOperationMap('cam-left', 0)
         if key == 'd' : self.setOperationMap('cam-right', 1)
-        if key == 'd-up' : self.setOperationMap('cam-rigt', 0)
+        if key == 'd-up' : self.setOperationMap('cam-right', 0)
         if key == 'w' : self.setOperationMap('cam-forward', 1)
         if key == 'w-up' : self.setOperationMap('cam-forward', 0)
         if key == 's' : self.setOperationMap('cam-backward', 1)

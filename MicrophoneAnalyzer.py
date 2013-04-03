@@ -1,11 +1,13 @@
+import threading
 import alsaaudio, time, audioop
 import fftw3
 import numpy
 import math
 
-class SoundAnalyzer():
+class SoundAnalyzer(threading.Thread):
 
     def __init__(self):
+        threading.Thread.__init__(self)
         self.nfreq = 1024/2+1
         self.low_cut_f = 100
         self.high_cut_f = 1000
@@ -30,10 +32,13 @@ class SoundAnalyzer():
         self.indizes = range(1024)
         self.plan = fftw3.Plan(self.wave, self.freq, direction='forward')
         self.nframe = 0
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
 
     def analyze(self):
         l,data = self.inp.read()
-        print l
+        #print l
         if l:
             i = 0
             for x in self.indizes:
@@ -83,4 +88,12 @@ class SoundAnalyzer():
                     self.bands_s[i] = self.bands[i]
 
             self.nframe = self.nframe + 1
-            print self.bands_s[0], self.bands_s[1], self.bands_s[2]
+            #return self.bands_s[0], self.bands_s[1], self.bands_s[2]
+
+    def run(self):
+        while True:
+            self.analyze()
+
+    def getBeat(self):
+        return self.bands_s[0], self.bands_s[1], self.bands_s[2]
+

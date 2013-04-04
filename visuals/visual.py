@@ -1,14 +1,35 @@
 class visual:
     def __init__(self, loader, render, snd):
+        # hold state of visual
+        self.beatdetect = True
+        self.active = True
+        self.sndX = 0.0 # bass
+        self.sndY = 0.0 # mid
+        self.sndZ = 0.0 # high
+        self.visualMovementSpeed = 1.0
+        self.scaleValue = 1.0
+
         self.snd = snd
         self.loader = loader
         self.render = render
-        self.path = self.loader.loadModel("voyager")
+
+        self.path = self.loader.loadModel("monitor")
         self.path.reparentTo(self.render)
-        self.visualMovementSpeed = 1.0
-        self.scaleValue = 10.0
         self.path.setPos(0,-self.scaleValue/2,0)
         self.path.setRenderModeWireframe()
+
+        self.setup() # also apply custom stuff
+
+    def getBeat(self):
+        self.sndX, self.sndY, self.sndZ = self.snd.getBeat()
+        self.performBeat()
+
+    def setup(self): # custom stuff
+        pass
+
+    def performBeat(self):
+        self.scaleToBeat()
+        pass
 
     def moveLeft(self):
         self.path.setX(self.path, -self.visualMovementSpeed)
@@ -47,5 +68,4 @@ class visual:
         self.path.setR(self.path, -self.visualMovementSpeed)
 
     def scaleToBeat(self):
-        bass, mid, hi = self.snd.getBeat()
-        self.path.setScale(self.scaleValue + ( 1*(bass/100)))
+        self.path.setScale(self.scaleValue + ( 1*(self.sndX/100)))

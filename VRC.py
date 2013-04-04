@@ -32,6 +32,7 @@ class VRC(ShowBase):
         self.snd = SoundAnalyzer()
         self.snd.start()
         self.activeVisual = visual(loader, self.render, self.snd)
+        self.visuals.append(self.activeVisual)
 
         # set up another camera to view stuff in other window
         self.otherWin = self.openWindow(makeCamera = 0)
@@ -133,11 +134,15 @@ class VRC(ShowBase):
         self.taskMgr.add(self.setOperation, 'keyboardAction', sort = 1, priority = 3)
         self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
         #self.taskMgr.add(self.analyzeSound, 'soundAnalyzer', sort = 1, priority = 1)
-        self.taskMgr.add(self.setSoundScale, 'wobble', sort = 1, priority = 1)
+        #self.taskMgr.add(self.setSoundScale, 'wobble', sort = 1, priority = 1)
         self.taskMgr.add(self.executeOperation, 'action', sort = 1, priority = 2)
+        self.taskMgr.add(self.spreadTheBeat, 'sound', sort = 1, priority = 1)
 
-    def analyzeSound(self, task):
-        self.snd.analyze()
+    def destroy(self):
+        self.snd.stop()
+
+    def spreadTheBeat(self, task):
+        map(lambda x: x.getBeat(), self.visuals)
         return task.cont
 
     def setSoundScale(self, task):

@@ -35,6 +35,13 @@ class SoundAnalyzer(threading.Thread):
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.isSet()
 
     def analyze(self):
         l,data = self.inp.read()
@@ -92,6 +99,8 @@ class SoundAnalyzer(threading.Thread):
 
     def run(self):
         while True:
+            if self.stopped():
+                self.exit()
             self.analyze()
 
     def getBeat(self):

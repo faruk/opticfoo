@@ -18,12 +18,12 @@ operationMap = {
     'cam-sync-to': 1,
     'cam-fix-toggle': 1,
     #obsolete
-    'cam-closer':0,
-    'cam-farer':0,
-    'cam-lift-up':0,
-    'cam-lift-down':0,
-    'cam-slide-left':0,
-    'cam-slide-right':0,
+    #'cam-closer':0,
+    #'cam-farer':0,
+    #'cam-lift-up':0,
+    #'cam-lift-down':0,
+    #'cam-slide-left':0,
+    #'cam-slide-right':0,
 
     # visual operations
     'visual-up':0,

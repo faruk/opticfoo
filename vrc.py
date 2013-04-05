@@ -1,12 +1,9 @@
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker
-from operationMap import operationMap
-from HUD import HUD
-from MicrophoneAnalyzer import SoundAnalyzer
-from visuals.monitor.Monitor import Monitor
-from visuals.enterprise.Enterprise import Enterprise
-from visuals.videobackground.VideoBackground import VideoBackground
+from operationmap import operationMap
+from hud import HUD
+from soundanalyzer import SoundAnalyzer
 from visuals.visual import visual
 
 loadPrcFile('Config.prc')

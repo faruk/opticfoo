@@ -1,4 +1,4 @@
-from operationMap import operationMap
+from operationmap import operationMap
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.DirectGui import *
 from panda3d.core import *

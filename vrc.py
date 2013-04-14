@@ -1,12 +1,15 @@
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
-from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker
+from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker, loadPrcFileData
 from operationmap import operationMap
 from hud import HUD
+#from gui import GUI
 from soundanalyzer import SoundAnalyzer
 from visuals.visual import visual
+from visuals.firsttry import FirstTry
 
 loadPrcFile('Config.prc')
+#loadPrcFileData('', 'undecorated t')
 
 class VRC(ShowBase):
     def __init__(self):
@@ -23,16 +26,20 @@ class VRC(ShowBase):
 
 
         self.hud = HUD()
-        self.hudToggle = -1
+        self.hudToggle = 1
         self.setFrameRateMeter(True)
 
         self.snd = SoundAnalyzer()
         self.snd.start()
-        self.activeVisual = visual(loader, self.render, self.snd)
+        self.activeVisual = FirstTry(loader, self.render, self.snd)
         self.visuals.append(self.activeVisual)
 
         # set up another camera to view stuff in other window
-        self.otherWin = self.openWindow(makeCamera = 0)
+        props = WindowProperties()
+        props.setSize(640, 480)
+        props.setUndecorated(True)
+        props.setOrigin(0,0)
+        self.otherWin = self.openWindow(props, makeCamera = 0)
         self.otherCam = self.makeCamera(self.otherWin)
         self.camSpeed = 1.0
         self.cam.setPos(0,-100,0)
@@ -135,8 +142,12 @@ class VRC(ShowBase):
         self.taskMgr.add(self.executeOperation, 'action', sort = 1, priority = 2)
         self.taskMgr.add(self.spreadTheBeat, 'sound', sort = 1, priority = 1)
 
-    def destroy(self):
-        self.snd.stop()
+        # GUI
+        #self.GUI = GUI(self)
+        self.startTk()
+
+    #def destroy(self):
+    #    self.snd.stop()
 
     def spreadTheBeat(self, task):
         map(lambda x: x.getBeat(), self.visuals)
@@ -331,6 +342,9 @@ class VRC(ShowBase):
             else:
                 self.cam.setPos(self.otherCam.getPos())
                 self.cam.setHpr(self.otherCam.getHpr())
+
+    def setCamSpeed(self, value):
+        self.camSpeed = value
 
     def moveVisualLeft(self):
         self.activeVisual.moveLeft()

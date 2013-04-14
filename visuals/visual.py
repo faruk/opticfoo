@@ -16,7 +16,7 @@ class visual:
         self.path = self.loader.loadModel("monitor")
         self.path.reparentTo(self.render)
         self.path.setPos(0,-self.scaleValue/2,0)
-        self.path.setRenderModeWireframe()
+#        self.path.setRenderModeWireframe()
 
         self.setup() # also apply custom stuff
 

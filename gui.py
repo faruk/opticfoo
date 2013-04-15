@@ -51,7 +51,78 @@ class GUI():
         #self.otherCam = vrc.otherCam
 
         #self.vrc = vrc
+        self.initCameraFrame()
 
+        self.initVisualsFrame()
+
+        self.initVisualFrame()
+
+        self.vrc.spawnTkLoop()
+
+
+        # general labels
+
+    def initVisualsFrame(self):
+        self.visuals = {}
+        i = 0
+        for v in self.vrc.factory.visuals.keys():
+            label = tk.Label(self.visualsTab, text = v)
+            button = tk.Button(self.visualsTab, text = "detach", command = lambda t = v: self.toggleAttach(t))
+            label.grid(row = i)
+            button.grid(row = i, column=1)
+            self.visuals[v] = {'label': label, 'button': button}
+            #self.visuals[v]['button'].config(command = self.toggleAttach(v))
+            i = i + 1
+
+    def toggleAttach(self, v):
+        print v
+        if self.vrc.factory.visuals[v].attached:
+           self.vrc.factory.visuals[v].detach()
+           self.visuals[v]['button'].config(text = "attach")
+        else:
+           self.vrc.factory.visuals[v].attach()
+           self.visuals[v]['button'].config(text = "detach")
+        self.updateActiveVisualListbox()
+
+    def initVisualFrame(self):
+        self.activeVisualsListbox = tk.Listbox(self.visualTab)
+        self.activeVisualsListbox.bind('<<ListboxSelect>>', self.updateActiveVisual)
+        active = []
+        for k in self.visuals.keys():
+            if self.visuals[k]['button'].config()['text'][4] == "detach":
+                active.append(k)
+        for k in active:
+            self.activeVisualsListbox.insert(tk.END, k)
+        self.activeVisualsListbox.grid(column = 0)
+        x,y,z = self.vrc.activeVisual.path.getPos()
+        h,p,r = self.vrc.activeVisual.path.getHpr()
+        self.visualPos = tk.Label(self.visualTab, text = "x: "+str(x)+", y: "+str(y)+", z: "+str(z))
+        self.visualPos.grid(column = 1, row = 0)
+
+    def updateActiveVisualListbox(self):
+        self.activeVisualsListbox.delete(0, self.activeVisualsListbox.size()-1)
+        active = []
+        for k in self.visuals.keys():
+            if self.visuals[k]['button'].config()['text'][4] == "detach":
+                active.append(k)
+        self.vrc.visuals.clear()
+        for k in active:
+            self.activeVisualsListbox.insert(tk.END, k)
+            self.vrc.visuals[k] = self.vrc.factory.visuals[k]
+        self.activeVisualsListbox.grid(column=0)
+
+    def updateActiveVisual(self, event):
+        w = event.widget
+        index = int(w.curselection()[0])
+        value = w.get(index)
+        self.vrc.activeVisual = self.vrc.visuals[value]
+        print value
+
+    def getActiveVisualStatus(self):
+        pass
+
+
+    def initCameraFrame(self):
         # camera labels
         self.camPos = tk.Label(self.cameraTab, text = "")
         self.camPos.pack(anchor="w")
@@ -68,7 +139,6 @@ class GUI():
             label="Camera speed"
         )
         self.camSpeed.pack(anchor="w")
-        
         self.camLeft = tk.Label(self.cameraTab, text = "")
         self.camLeft.pack(anchor="w")
         self.camRight = tk.Label(self.cameraTab, text = "")
@@ -98,17 +168,11 @@ class GUI():
         self.camFixToggle = tk.Label(self.cameraTab, text = "")
         self.camFixToggle.pack(anchor="w")
 
-        self.vrc.spawnTkLoop()
-
-
-        # general labels
-
-    def initVisualFrame(self):
-        pass
-
     def update(self):
         self.getCameraStatus()
         self.getGeneralStatus()
+        self.getActiveVisualStatus()
+
 
     def setCameraValues(self, values):
         pass
@@ -132,9 +196,6 @@ class GUI():
         self.camSyncToggle.config(text="cam-sync-toggle: "+str(self.vrc.op['cam-sync-toggle']))
         self.camSyncTo.config(text="cam-sync-to: "+str(self.vrc.op['cam-sync-to']))
         self.camFixToggle.config(text="cam-fix-toggle: "+str(self.vrc.op['cam-fix-toggle']))
-
-    def getVisualStatus(self):
-        pass
 
     def getGeneralStatus(self):
         self.mode.config(text=self.vrc.mode+" mode")

@@ -5,8 +5,7 @@ from operationmap import operationMap
 from hud import HUD
 #from gui import GUI
 from soundanalyzer import SoundAnalyzer
-from visuals.visual import visual
-from visuals.firsttry import FirstTry
+from visuals.visuals import VisualFactory
 
 loadPrcFile('Config.prc')
 #loadPrcFileData('', 'undecorated t')
@@ -19,9 +18,14 @@ class VRC(ShowBase):
         self.op = operationMap
         self.mode = self.op['mode']
 
+        # sound analyzer
+        self.snd = SoundAnalyzer()
+        self.snd.start()
+
 
         # allocate visuals
-        self.visuals = []
+        self.visuals = {}
+        self.factory = VisualFactory(loader, self.render, self.snd)
         #self.activeVisual = visual(loader, self.render, self.snd)
 
 
@@ -29,10 +33,9 @@ class VRC(ShowBase):
         self.hudToggle = 1
         self.setFrameRateMeter(True)
 
-        self.snd = SoundAnalyzer()
-        self.snd.start()
-        self.activeVisual = FirstTry(loader, self.render, self.snd)
-        self.visuals.append(self.activeVisual)
+        self.activeVisual = self.factory.visuals['placeholder']
+        self.factory.visuals['firsttry'].detach()
+        self.visuals['placeholder'] = self.activeVisual
 
         # set up another camera to view stuff in other window
         props = WindowProperties()
@@ -150,7 +153,7 @@ class VRC(ShowBase):
     #    self.snd.stop()
 
     def spreadTheBeat(self, task):
-        map(lambda x: x.getBeat(), self.visuals)
+        map(lambda x: x.getBeat(), self.visuals.values())
         return task.cont
 
     def setSoundScale(self, task):

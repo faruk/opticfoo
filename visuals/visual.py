@@ -7,7 +7,8 @@ class visual:
         self.sndY = 0.0 # mid
         self.sndZ = 0.0 # high
         self.visualMovementSpeed = 1.0
-        self.scaleValue = 1.0
+        self.scale = 1.0
+        self.transparency = 1.0
 
         self.snd = snd
         self.loader = loader
@@ -15,8 +16,10 @@ class visual:
 
         self.path = self.loader.loadModel("monitor")
         self.path.reparentTo(self.render)
-        self.path.setPos(0,-self.scaleValue/2,0)
+        self.path.setPos(0,0,0)
 #        self.path.setRenderModeWireframe()
+
+        self.attached = True
 
         self.setup() # also apply custom stuff
 
@@ -68,4 +71,12 @@ class visual:
         self.path.setR(self.path, -self.visualMovementSpeed)
 
     def scaleToBeat(self):
-        self.path.setScale(self.scaleValue + ( 1*(self.sndX/100)))
+        self.path.setScale(self.scale + ( 1*(self.sndX/100)))
+
+    def detach(self):
+        self.path.detachNode()
+        self.attached = False
+
+    def attach(self):
+        self.path.reparentTo(self.render)
+        self.attached = True

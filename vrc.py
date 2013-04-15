@@ -15,6 +15,7 @@ class VRC(ShowBase):
         ShowBase.__init__(self)
 
         # load operation map which holds state of operations
+        self.operationmap = operationMap
         self.op = operationMap
         self.mode = self.op['mode']
 
@@ -33,6 +34,7 @@ class VRC(ShowBase):
         self.hudToggle = 1
         self.setFrameRateMeter(True)
 
+        # refactor this
         self.activeVisual = self.factory.visuals['placeholder']
         self.factory.visuals['firsttry'].detach()
         self.visuals['placeholder'] = self.activeVisual
@@ -223,6 +225,7 @@ class VRC(ShowBase):
             self.camAfterMath()
 
     def setVisualOperation(self,key):
+        self.getVisualOperationMap()
         if key == 'a' : self.setOperationMap('visual-left', 1)
         if key == 'a-up' : self.setOperationMap('visual-left', 0)
         if key == 'd' : self.setOperationMap('visual-right', 1)
@@ -259,6 +262,20 @@ class VRC(ShowBase):
         if key == '9-up' : self.setOperationMap('visual-effect9', 0)
         if key == '0' : self.setOperationMap('visual-effect0', 1)
         if key == '0-up' : self.setOperationMap('visual-effect0', 0)
+        self.activeVisual.updateOperationMap(self.op)
+
+    def getVisualOperationMap(self):
+        op = self.activeVisual.getOperationMap()
+        self.op['visual-left'] = op['visual-left']
+        self.op['visual-right'] = op['visual-right']
+        self.op['visual-up'] = op['visual-up']
+        self.op['visual-down'] = op['visual-down']
+        self.op['visual-forward'] = op['visual-forward']
+        self.op['visual-backward'] = op['visual-backward']
+        self.op['visual-rotate-left'] = op['visual-rotate-left']
+        self.op['visual-rotate-right'] = op['visual-rotate-right']
+        self.op['visual-rotate-up'] = op['visual-rotate-up']
+        self.op['visual-rotate-down'] = op['visual-rotate-down']
 
     def setOperationMap(self, key, value):
         self.op[key] = value
@@ -278,16 +295,7 @@ class VRC(ShowBase):
         if self.op['cam-reset'] == 1: self.resetCam()
 
         # visual operations
-        if self.op['visual-left'] == 1: self.moveVisualLeft()
-        if self.op['visual-right'] == 1: self.moveVisualRight()
-        if self.op['visual-up'] == 1: self.moveVisualUp()
-        if self.op['visual-down'] == 1: self.moveVisualDown()
-        if self.op['visual-forward'] == 1: self.moveVisualForward()
-        if self.op['visual-backward'] == 1: self.moveVisualBackward()
-        if self.op['visual-rotate-left'] == 1: self.rotateVisualLeft()
-        if self.op['visual-rotate-right'] == 1: self.rotateVisualRight()
-        if self.op['visual-rotate-up'] == 1: self.rotateVisualUp()
-        if self.op['visual-rotate-down'] == 1: self.rotateVisualDown()
+        map(lambda x: x.update(), self.visuals.values())
 
         return task.cont
 

@@ -93,11 +93,13 @@ class GUI():
                 active.append(k)
         for k in active:
             self.activeVisualsListbox.insert(tk.END, k)
-        self.activeVisualsListbox.grid(column = 0)
+        self.activeVisualsListbox.grid(column = 0, rowspan=30)
         x,y,z = self.vrc.activeVisual.path.getPos()
         h,p,r = self.vrc.activeVisual.path.getHpr()
         self.visualPos = tk.Label(self.visualTab, text = "x: "+str(x)+", y: "+str(y)+", z: "+str(z))
         self.visualPos.grid(column = 1, row = 0)
+        self.visualHpr = tk.Label(self.visualTab, text = "h: "+str(h)+", p: "+str(p)+", r: "+str(r))
+        self.visualHpr.grid(column = 1, row = 1)
 
     def updateActiveVisualListbox(self):
         self.activeVisualsListbox.delete(0, self.activeVisualsListbox.size()-1)
@@ -117,9 +119,14 @@ class GUI():
         value = w.get(index)
         self.vrc.activeVisual = self.vrc.visuals[value]
         print value
+        self.getActiveVisualStatus()
+
 
     def getActiveVisualStatus(self):
-        pass
+        x, y, z = self.vrc.activeVisual.getPos()
+        self.visualPos.config(text="x: "+str(x)+", y: "+str(y)+", z: "+str(z))
+        h,p,r = self.vrc.activeVisual.getHpr()
+        self.visualHpr.config(text="h: "+str(h)+", p: "+str(p)+", r: "+str(r))
 
 
     def initCameraFrame(self):

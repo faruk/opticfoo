@@ -1,3 +1,5 @@
+from operationmap import operationMap
+
 class visual:
     def __init__(self, loader, render, snd):
         # hold state of visual
@@ -20,6 +22,7 @@ class visual:
 #        self.path.setRenderModeWireframe()
 
         self.attached = True
+        self.op = operationMap
 
         self.setup() # also apply custom stuff
 
@@ -80,3 +83,27 @@ class visual:
     def attach(self):
         self.path.reparentTo(self.render)
         self.attached = True
+
+    def getPos(self):
+        return self.path.getPos()
+
+    def getHpr(self):
+        return self.path.getHpr()
+
+    def update(self):
+        if self.op['visual-left'] == 1: self.moveLeft()
+        if self.op['visual-right'] == 1: self.moveRight()
+        if self.op['visual-up'] == 1: self.moveUp()
+        if self.op['visual-down'] == 1: self.moveDown()
+        if self.op['visual-forward'] == 1: self.moveForward()
+        if self.op['visual-backward'] == 1: self.moveBackward()
+        if self.op['visual-rotate-left'] == 1: self.rotateLeft()
+        if self.op['visual-rotate-right'] == 1: self.rotateRight()
+        if self.op['visual-rotate-up'] == 1: self.rotateUp()
+        if self.op['visual-rotate-down'] == 1: self.rotateDown()
+
+    def updateOperationMap(self, op):
+        self.op = op
+
+    def getOperationMap(self):
+        return self.op

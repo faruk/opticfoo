@@ -103,7 +103,7 @@ class visual:
         if self.op['visual-rotate-down'] == 1: self.rotateDown()
 
     def updateOperationMap(self, op):
-        self.op = op
+        self.op = dict(op)
 
     def getOperationMap(self):
         return self.op

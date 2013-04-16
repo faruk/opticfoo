@@ -182,6 +182,8 @@ class VRC(ShowBase):
         if self.mode == "insert" : self.setInsertOperation(key)
         if self.mode == "light" : self.setLightOperation(key)
         if key == 'escape' : self.mode = 'escaped'
+        print self.visuals
+        print self.activeVisual
 
     def setMode(self, key):
         if key == "v" : self.mode = 'visual'

@@ -24,6 +24,13 @@ class visual:
         self.attached = True
         self.op = operationMap
 
+        self.specialStatusString = """
+This is a visual Template which has no special status.
+Just a placeholder for the case. blablabla
+bla bla blab la... . 
+"""
+
+
         self.setup() # also apply custom stuff
 
     def getBeat(self):
@@ -87,6 +94,9 @@ class visual:
     def getPos(self):
         return self.path.getPos()
 
+    def setPos(self, x,y,z):
+        self.path.setPos((x,y,z))
+
     def getHpr(self):
         return self.path.getHpr()
 
@@ -107,3 +117,9 @@ class visual:
 
     def getOperationMap(self):
         return self.op
+
+    def getSpecialStatus(self):
+        return self.specialStatusString
+
+    def setMovementSpeed(self, value):
+        self.visualMovementSpeed = value

@@ -68,9 +68,18 @@ class GUI():
         for v in self.vrc.factory.visuals.keys():
             label = tk.Label(self.visualsTab, text = v)
             button = tk.Button(self.visualsTab, text = "detach", command = lambda t = v: self.toggleAttach(t))
+            x = tk.Entry(self.visualsTab, width=3)
+            y = tk.Entry(self.visualsTab, width=3)
+            z = tk.Entry(self.visualsTab, width=3)
+            x.insert(0, "0")
+            y.insert(0, "0")
+            z.insert(0, "0")
             label.grid(row = i)
             button.grid(row = i, column=1)
-            self.visuals[v] = {'label': label, 'button': button}
+            x.grid(row = i, column=2)
+            y.grid(row = i, column=3)
+            z.grid(row = i, column=4)
+            self.visuals[v] = {'label': label, 'button': button, 'x': x, 'y': y, 'z': z}
             #self.visuals[v]['button'].config(command = self.toggleAttach(v))
             i = i + 1
 
@@ -78,13 +87,20 @@ class GUI():
         print v
         if self.vrc.factory.visuals[v].attached:
            self.vrc.factory.visuals[v].detach()
+           self.vrc.activeVisual = None
            self.visuals[v]['button'].config(text = "attach")
         else:
-           self.vrc.factory.visuals[v].attach()
-           self.visuals[v]['button'].config(text = "detach")
+            x = int(self.visuals[v]['x'].get())
+            y = int(self.visuals[v]['y'].get())
+            z = int(self.visuals[v]['z'].get())
+            self.vrc.factory.visuals[v].setPos(x,y,z)
+            self.vrc.factory.visuals[v].attach()
+            self.visuals[v]['button'].config(text = "detach")
+            self.vrc.activeVisual = self.vrc.factory.visuals[v]
         self.updateActiveVisualListbox()
 
     def initVisualFrame(self):
+        self.activeVisualName = self.visuals.keys()[0]
         self.activeVisualsListbox = tk.Listbox(self.visualTab)
         self.activeVisualsListbox.bind('<<ListboxSelect>>', self.updateActiveVisual)
         active = []
@@ -96,10 +112,43 @@ class GUI():
         self.activeVisualsListbox.grid(column = 0, rowspan=30)
         x,y,z = self.vrc.activeVisual.path.getPos()
         h,p,r = self.vrc.activeVisual.path.getHpr()
-        self.visualPos = tk.Label(self.visualTab, text = "x: "+str(x)+", y: "+str(y)+", z: "+str(z))
-        self.visualPos.grid(column = 1, row = 0)
-        self.visualHpr = tk.Label(self.visualTab, text = "h: "+str(h)+", p: "+str(p)+", r: "+str(r))
-        self.visualHpr.grid(column = 1, row = 1)
+        self.visualPos = tk.Label(self.visualTab, text = "x: "+str(int(x))+", y: "+str(int(y))+", z: "+str(int(z)))
+        self.visualPos.grid(column = 1, row = 0, sticky = tk.E)
+        self.visualHpr = tk.Label(self.visualTab, text = "h: "+str(int(h))+", p: "+str(int(p))+", r: "+str(int(r)))
+        self.visualHpr.grid(column = 1, row = 1, sticky = tk.E)
+        self.visualLeft = tk.Label(self.visualTab, text = "visual-left: "+str(self.op['visual-left']))
+        self.visualLeft.grid(column = 1, row = 2, sticky = tk.E)
+        self.visualRight= tk.Label(self.visualTab, text = "visual-right: "+str(self.op['visual-right']))
+        self.visualRight.grid(column = 1, row = 3, sticky = tk.E)
+        self.visualUp = tk.Label(self.visualTab, text = "visual-up: "+str(self.op['visual-up']))
+        self.visualUp.grid(column=1, row=4, sticky = tk.E)
+        self.visualDown = tk.Label(self.visualTab, text = "visual-down: "+str(self.op['visual-down']))
+        self.visualDown.grid(column=1, row=5, sticky = tk.E)
+        self.visualForward = tk.Label(self.visualTab, text = "visual-forward: "+str(self.op['visual-forward']))
+        self.visualForward.grid(column = 1, row = 6, sticky = tk.E)
+        self.visualBackward = tk.Label(self.visualTab, text = "visual-backward: "+str(self.op['visual-backward']))
+        self.visualBackward.grid(column = 1, row = 7, sticky = tk.E)
+        self.visualRotateLeft = tk.Label(self.visualTab, text = "visual-rotate-left: "+str(self.op['visual-rotate-left']))
+        self.visualRotateLeft.grid(column = 1, row = 8, sticky = tk.E)
+        self.visualRotateRight = tk.Label(self.visualTab, text = "visual-rotate-right: "+str(self.op['visual-rotate-right']))
+        self.visualRotateRight.grid(column = 1, row = 9, sticky = tk.E)
+        self.visualRotateUp = tk.Label(self.visualTab, text = "visual-rotate-up: "+str(self.op['visual-rotate-up']))
+        self.visualRotateUp.grid(column = 1, row = 10, sticky = tk.E)
+        self.visualRotateDown = tk.Label(self.visualTab, text = "visual-rotate-down: "+str(self.op['visual-rotate-down']))
+        self.visualRotateDown.grid(column = 1, row = 11, sticky = tk.E)
+        self.visualSpeed = tk.Scale(
+            self.visualTab, 
+            from_ = 0.0, 
+            to = 10.0, 
+            orient=tk.VERTICAL, 
+            resolution = 0.1, 
+            length=200,
+            command=self.updateActiveVisualSpeed,
+            label="Visual movement speed"
+        )
+        self.visualSpeed.grid(column = 1, row = 12, sticky = tk.E)
+        self.visualSpecialStatus = tk.Label(self.visualTab, text = self.vrc.activeVisual.getSpecialStatus(), width=50, justify = tk.LEFT)
+        self.visualSpecialStatus.grid(column = 2, row =0, sticky = tk.NE, rowspan=30)
 
     def updateActiveVisualListbox(self):
         self.activeVisualsListbox.delete(0, self.activeVisualsListbox.size()-1)
@@ -119,15 +168,38 @@ class GUI():
         value = w.get(index)
         self.vrc.activeVisual = self.vrc.visuals[value]
         print value
-        self.getActiveVisualStatus()
+        self.updateActiveVisualOperationMap()
+        self.activeVisualName = value
 
+    def updateActiveVisualOperationMap(self):
+        self.visualLeft.config(text = "visual-left: "+str(self.op['visual-left']))
+        self.visualRight.config(text = "visual-right: "+str(self.op['visual-right']))
+        self.visualUp.config(text = "visual-up: "+str(self.op['visual-up']))
+        self.visualDown.config(text = "visual-down: "+str(self.op['visual-down']))
+        self.visualForward.config(text = "visual-forward: "+str(self.op['visual-forward']))
+        self.visualBackward.config(text = "visual-backward: "+str(self.op['visual-backward']))
+        self.visualRotateLeft.config(text = "visual-rotate-left: "+str(self.op['visual-rotate-left']))
+        self.visualRotateRight.config(text = "visual-rotate-right: "+str(self.op['visual-rotate-right']))
+        self.visualRotateUp.config(text = "visual-rotate-up: "+str(self.op['visual-rotate-up']))
+        self.visualRotateDown.config(text = "visual-rotate-down: "+str(self.op['visual-rotate-down']))
+
+    def updateActiveVisualSpeed(self, event):
+        print event
+        self.vrc.activeVisual.setMovementSpeed(self.visualSpeed.get())
 
     def getActiveVisualStatus(self):
-        x, y, z = self.vrc.activeVisual.getPos()
-        self.visualPos.config(text="x: "+str(x)+", y: "+str(y)+", z: "+str(z))
-        h,p,r = self.vrc.activeVisual.getHpr()
-        self.visualHpr.config(text="h: "+str(h)+", p: "+str(p)+", r: "+str(r))
-
+        if self.vrc.activeVisual != None:
+            x, y, z = map(lambda i: str(int(i)), self.vrc.activeVisual.getPos())
+            self.visualPos.config(text="x: "+x+", y: "+y+", z: "+z)
+            h,p,r = map(lambda i: str(int(i)), self.vrc.activeVisual.getHpr())
+            self.visualHpr.config(text="h: "+h+", p: "+p+", r: "+r)
+            self.visuals[self.activeVisualName]['x'].delete(0,10)
+            self.visuals[self.activeVisualName]['y'].delete(0,10)
+            self.visuals[self.activeVisualName]['z'].delete(0,10)
+            self.visuals[self.activeVisualName]['x'].insert(0,x)
+            self.visuals[self.activeVisualName]['y'].insert(0,y)
+            self.visuals[self.activeVisualName]['z'].insert(0,z)
+            self.updateActiveVisualOperationMap()
 
     def initCameraFrame(self):
         # camera labels
@@ -139,7 +211,7 @@ class GUI():
             self.cameraTab, 
             from_ = 0.0, 
             to = 10.0, 
-            orient=tk.HORIZONTAL, 
+            orient=tk.VERTICAL, 
             resolution = 0.1, 
             length=200,
             command=self.updateCamSpeed,
@@ -185,9 +257,9 @@ class GUI():
         pass
 
     def getCameraStatus(self):
-        x, y, z = self.vrc.cam.getPos()
+        x, y, z = map(lambda i: int(i), self.vrc.cam.getPos())
         self.camPos.config(text = "x: "+str(x)+", y: "+str(y)+", z: "+str(z))
-        h, p, r = self.vrc.cam.getHpr()
+        h, p, r = map(lambda i: int(i), self.vrc.cam.getHpr())
         self.camHpr.config(text = "h: "+str(h)+", p: "+str(p)+", r: "+str(r))
         self.camLeft.config(text="cam-left: "+str(self.vrc.op['cam-left']))
         self.camRight.config(text="cam-right: "+str(self.vrc.op['cam-right']))

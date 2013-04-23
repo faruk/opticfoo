@@ -24,20 +24,9 @@ class VRC(ShowBase):
         self.snd.start()
 
 
-        # allocate visuals
-        self.visuals = {}
-        self.factory = VisualFactory(loader, self.render, self.snd)
-        #self.activeVisual = visual(loader, self.render, self.snd)
-
-
         self.hud = HUD()
         self.hudToggle = 1
         self.setFrameRateMeter(True)
-
-        # refactor this
-        self.activeVisual = self.factory.visuals['placeholder']
-        self.factory.visuals['firsttry'].detach()
-        self.visuals['placeholder'] = self.activeVisual
 
         # set up another camera to view stuff in other window
         props = WindowProperties()
@@ -45,10 +34,29 @@ class VRC(ShowBase):
         props.setUndecorated(True)
         props.setOrigin(0,0)
         self.otherWin = self.openWindow(props, makeCamera = 0)
+        self.win.setClearColor((0,0,0,1))
+        self.otherWin.setClearColor((0,0,0,1))
+
+
+        # allocate visuals
+        self.visuals = {}
+        self.factory = VisualFactory(
+            loader,
+            self.render,
+            self.snd,
+            [self.win, self.otherWin]
+        )
+        #self.activeVisual = visual(loader, self.render, self.snd)
+
+        # refactor this
+        self.activeVisual = self.factory.visuals['placeholder']
+        self.factory.visuals['firsttry'].detach()
+        self.visuals['placeholder'] = self.activeVisual
         self.otherCam = self.makeCamera(self.otherWin)
         self.camSpeed = 1.0
         self.cam.setPos(0,-100,0)
         self.camAfterMath()
+
 
         # movement keys
         self.accept('a', self.setOperation, ['a'])

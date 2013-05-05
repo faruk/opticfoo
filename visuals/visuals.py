@@ -19,13 +19,13 @@ class VisualFactory:
         self.spawnVisuals()
 
     def spawnVisuals(self):
-        self.visuals['firsttry'] = FirstTry(self.loader, self.render, self.snd)
+        #self.visuals['firsttry'] = FirstTry(self.loader, self.render, self.snd)
         self.visuals['placeholder'] = visual(self.loader, self.render, self.snd)
         self.visuals['backgroundbeat'] = BackgroundBeat(self.loader, self.render, self.snd)
-        self.visuals['cardquad'] = CardQuad(self.loader, self.render, self.snd)
+        #self.visuals['cardquad'] = CardQuad(self.loader, self.render, self.snd)
         self.visuals['enterprise'] = Enterprise(self.loader, self.render, self.snd)
-        self.visuals['texturecard'] = TextureCard(self.loader, self.render, self.snd)
-        self.visuals['skatesculp1'] = SkateRampOne(self.loader, self.render, self.snd)
-        self.visuals['vrclight'] = VRCLight(self.loader, self.render, self.snd)
+        #self.visuals['texturecard'] = TextureCard(self.loader, self.render, self.snd)
+        #self.visuals['skatesculp1'] = SkateRampOne(self.loader, self.render, self.snd)
+        #self.visuals['vrclight'] = VRCLight(self.loader, self.render, self.snd)
         self.visuals['skull'] = Skull(self.loader, self.render, self.snd)
         self.visuals['P90'] = P90(self.loader, self.render, self.snd)

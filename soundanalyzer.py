@@ -35,6 +35,9 @@ class SoundAnalyzer(threading.Thread):
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
+        self.xThreshold = 30
+        self.yThreshold = 1
+        self.zThreshold = 1
         self._stop = threading.Event()
 
     def stop(self):
@@ -106,3 +109,14 @@ class SoundAnalyzer(threading.Thread):
     def getBeat(self):
         return self.bands_s[0], self.bands_s[1], self.bands_s[2]
 
+    def getThresholds(self):
+        return self.xThreshold, self.yThreshold, self.zThreshold
+
+    def setXThreshold(self, value):
+        self.xThreshold = value
+
+    def setYThreshold(self, value):
+        self.yThreshold = value
+
+    def setZThreshold(self, value):
+        self.zThreshold = value

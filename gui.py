@@ -29,11 +29,11 @@ class GUI():
         self.visualsTab = tk.Frame()
         self.insertTab = tk.Frame()
         self.cameraTab = tk.Frame()
-        self.escapeTab = tk.Frame()
+        self.generalTab = tk.Frame()
         self.debugFrame = tk.Frame()
         self.tabs.pack(anchor="nw")
 
-        self.tabs.add(self.escapeTab)
+        self.tabs.add(self.generalTab)
         self.tabs.tab(0, text="General")
         self.tabs.add(self.cameraTab)
         self.tabs.tab(1 , text="Camera")
@@ -57,6 +57,8 @@ class GUI():
 
         self.initVisualFrame()
 
+        self.initGeneralFrame()
+
         self.vrc.spawnTkLoop()
 
 
@@ -67,7 +69,7 @@ class GUI():
         i = 0
         for v in self.vrc.factory.visuals.keys():
             label = tk.Label(self.visualsTab, text = v)
-            button = tk.Button(self.visualsTab, text = "detach", command = lambda t = v: self.toggleAttach(t))
+            button = tk.Button(self.visualsTab, text = "attach", command = lambda t = v: self.toggleAttach(t))
             x = tk.Entry(self.visualsTab, width=3)
             y = tk.Entry(self.visualsTab, width=3)
             z = tk.Entry(self.visualsTab, width=3)
@@ -105,7 +107,7 @@ class GUI():
         self.activeVisualsListbox.bind('<<ListboxSelect>>', self.updateActiveVisual)
         active = []
         for k in self.visuals.keys():
-            if self.visuals[k]['button'].config()['text'][4] == "detach":
+            if self.visuals[k]['button'].config()['text'][4] == "attach":
                 active.append(k)
         for k in active:
             self.activeVisualsListbox.insert(tk.END, k)
@@ -137,16 +139,41 @@ class GUI():
         self.visualRotateDown = tk.Label(self.visualTab, text = "visual-rotate-down: "+str(self.op['visual-rotate-down']))
         self.visualRotateDown.grid(column = 1, row = 11, sticky = tk.E)
         self.visualSpeed = tk.Scale(
-            self.visualTab, 
-            from_ = 0.0, 
-            to = 10.0, 
-            orient=tk.VERTICAL, 
-            resolution = 0.1, 
+            self.visualTab,
+            from_ = 0.0,
+            to = 10.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.01,
             length=200,
             command=self.updateActiveVisualSpeed,
             label="Visual movement speed"
         )
+        self.visualSpeed.set(1)
         self.visualSpeed.grid(column = 1, row = 12, sticky = tk.E)
+        self.visualScale= tk.Scale(
+            self.visualTab,
+            from_ = 0.0,
+            to = 10.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.01,
+            length=200,
+            command=self.updateActiveVisualScale,
+            label="Visual scale"
+        )
+        self.visualScale.set(1)
+        self.visualScale.grid(column = 1, row = 13, sticky = tk.E)
+        self.visualTransparency= tk.Scale(
+            self.visualTab,
+            from_ = 0.0,
+            to = 1.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.01,
+            length=200,
+            command=self.updateActiveVisualTransparency,
+            label="Visual transparency"
+        )
+        self.visualTransparency.set(1)
+        self.visualTransparency.grid(column = 1, row = 14, sticky = tk.E)
         self.visualSpecialStatus = tk.Label(self.visualTab, text = self.vrc.activeVisual.getSpecialStatus(), width=50, justify = tk.LEFT)
         self.visualSpecialStatus.grid(column = 2, row =0, sticky = tk.NE, rowspan=30)
 
@@ -168,6 +195,9 @@ class GUI():
         value = w.get(index)
         self.vrc.activeVisual = self.vrc.visuals[value]
         print value
+        self.visualScale.set(self.vrc.activeVisual.getScale())
+        self.visualSpeed.set(self.vrc.activeVisual.getSpeed())
+        self.visualTransparency.set(self.vrc.activeVisual.getAlpha())
         self.updateActiveVisualOperationMap()
         self.activeVisualName = value
 
@@ -184,8 +214,13 @@ class GUI():
         self.visualRotateDown.config(text = "visual-rotate-down: "+str(self.op['visual-rotate-down']))
 
     def updateActiveVisualSpeed(self, event):
-        print event
         self.vrc.activeVisual.setMovementSpeed(self.visualSpeed.get())
+
+    def updateActiveVisualScale(self, event):
+        self.vrc.activeVisual.setScale(self.visualScale.get())
+
+    def updateActiveVisualTransparency(self, event):
+        self.vrc.activeVisual.setAlpha(self.visualTransparency.get())
 
     def getActiveVisualStatus(self):
         if self.vrc.activeVisual != None:
@@ -208,11 +243,11 @@ class GUI():
         self.camHpr = tk.Label(self.cameraTab, text = "")
         self.camHpr.pack(anchor="w")
         self.camSpeed = tk.Scale(
-            self.cameraTab, 
-            from_ = 0.0, 
-            to = 10.0, 
-            orient=tk.VERTICAL, 
-            resolution = 0.1, 
+            self.cameraTab,
+            from_ = 0.0,
+            to = 10.0,
+            orient=tk.VERTICAL,
+            resolution = 0.1,
             length=200,
             command=self.updateCamSpeed,
             label="Camera speed"
@@ -282,3 +317,50 @@ class GUI():
     def updateCamSpeed(self, event):
         print self.camSpeed.get(), event
         self.vrc.setCamSpeed(self.camSpeed.get())
+
+    def initGeneralFrame(self):
+        self.soundXThreshold = tk.Scale(
+            self.generalTab,
+            from_ = 0.0,
+            to = 100.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.25,
+            length=400,
+            command=self.updateSoundXThreshold,
+            label="Lo Threshold"
+        )
+        self.soundXThreshold.set(30)
+        self.soundXThreshold.grid(column = 0, row = 1, sticky = tk.E)
+        self.soundYThreshold = tk.Scale(
+            self.generalTab,
+            from_ = 0.0,
+            to = 100.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.25,
+            length=400,
+            command=self.updateSoundYThreshold,
+            label="Mid Threshold"
+        )
+        self.soundYThreshold.set(1)
+        self.soundYThreshold.grid(column = 0, row = 2, sticky = tk.E)
+        self.soundZThreshold = tk.Scale(
+            self.generalTab,
+            from_ = 0.0,
+            to = 100.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.25,
+            length=400,
+            command=self.updateSoundZThreshold,
+            label="Hi Threshold"
+        )
+        self.soundZThreshold.set(1)
+        self.soundZThreshold.grid(column = 0, row = 3, sticky = tk.E)
+
+    def updateSoundXThreshold(self, event):
+        self.vrc.snd.setXThreshold(self.soundXThreshold.get())
+
+    def updateSoundYThreshold(self, event):
+        self.vrc.snd.setYThreshold(self.soundYThreshold.get())
+
+    def updateSoundZThreshold(self, event):
+        self.vrc.snd.setZThreshold(self.soundZThreshold.get())

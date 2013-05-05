@@ -13,6 +13,7 @@ loadPrcFile('Config.prc')
 class VRC(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
+#        self.base.enableParticles()
 
         # load operation map which holds state of operations
         self.operationmap = operationMap
@@ -30,7 +31,7 @@ class VRC(ShowBase):
 
         # set up another camera to view stuff in other window
         props = WindowProperties()
-        props.setSize(640, 480)
+        props.setSize(800, 600)
         props.setUndecorated(True)
         props.setOrigin(0,0)
         self.otherWin = self.openWindow(props, makeCamera = 0)
@@ -77,6 +78,10 @@ class VRC(ShowBase):
         self.accept('k-up', self.setOperation, ['k-up'])
         self.accept('l', self.setOperation, ['l'])
         self.accept('l-up', self.setOperation, ['l-up'])
+        self.accept('i', self.setOperation, ['i'])
+        self.accept('i-up', self.setOperation, ['i-up'])
+        self.accept('u', self.setOperation, ['u'])
+        self.accept('u-up', self.setOperation, ['u-up'])
         self.accept('arrow_up', self.setOperation, ['arrow_up'])
         self.accept('arrow_up-up', self.setOperation, ['arrow_up-up'])
         self.accept('arrow_down', self.setOperation, ['arrow_down'])
@@ -116,7 +121,6 @@ class VRC(ShowBase):
         self.accept('c', self.setOperation, ['c'])
         self.accept('b', self.setOperation, ['b'])
         self.accept('n', self.setOperation, ['n'])
-        self.accept('i', self.setOperation, ['i'])
 
         # misc
         self.accept('r', self.setOperation, ['r'])
@@ -187,7 +191,6 @@ class VRC(ShowBase):
         if self.mode == "escaped" : self.setMode(key)
         if self.mode == "visual" : self.setVisualOperation(key)
         if self.mode == "cam" : self.setCamOperation(key)
-        if self.mode == "insert" : self.setInsertOperation(key)
         if self.mode == "light" : self.setLightOperation(key)
         if key == 'escape' : self.mode = 'escaped'
         print self.visuals
@@ -198,7 +201,6 @@ class VRC(ShowBase):
         if key == "c" : self.mode = 'cam'
         if key == "b" : self.mode = 'music'
         if key == "n" : self.mode = 'light'
-        if key == "i" : self.mode = 'insert'
         self.setOperationMap('mode', self.mode)
 
     def setCamOperation(self, key):
@@ -218,6 +220,10 @@ class VRC(ShowBase):
         if key == 'j-up' : self.setOperationMap('cam-rotate-down', 0)
         if key == 'k' : self.setOperationMap('cam-rotate-up', 1)
         if key == 'k-up' : self.setOperationMap('cam-rotate-up', 0)
+        if key == 'i' : self.setOperationMap('cam-roll-right', 1)
+        if key == 'i-up' : self.setOperationMap('cam-roll-right', 0)
+        if key == 'u' : self.setOperationMap('cam-roll-left', 1)
+        if key == 'u-up' : self.setOperationMap('cam-roll-left', 0)
         if key == 'page_up' : self.setOperationMap('cam-up', 1)
         if key == 'page_up-up' : self.setOperationMap('cam-up', 0)
         if key == 'page_down' : self.setOperationMap('cam-down', 1)
@@ -252,6 +258,14 @@ class VRC(ShowBase):
         if key == 'j-up' : self.setOperationMap('visual-rotate-down', 0)
         if key == 'k' : self.setOperationMap('visual-rotate-up', 1)
         if key == 'k-up' : self.setOperationMap('visual-rotate-up', 0)
+        if key == 'i' : self.setOperationMap('visual-roll-right', 1)
+        if key == 'i-up' : self.setOperationMap('visual-roll-right', 0)
+        if key == 'u' : self.setOperationMap('visual-roll-left', 1)
+        if key == 'u-up' : self.setOperationMap('visual-roll-left', 0)
+        if key == 'page_up' : self.setOperationMap('visual-forward', 1)
+        if key == 'page_up-up' : self.setOperationMap('visual-forward', 0)
+        if key == 'page_down' : self.setOperationMap('visual-backward', 1)
+        if key == 'page_down-up' : self.setOperationMap('visual-backward', 0)
         if key == '1' : self.setOperationMap('visual-effect1', 1)
         if key == '1-up' : self.setOperationMap('visual-effect1', 0)
         if key == '2' : self.setOperationMap('visual-effect2', 1)
@@ -272,20 +286,34 @@ class VRC(ShowBase):
         if key == '9-up' : self.setOperationMap('visual-effect9', 0)
         if key == '0' : self.setOperationMap('visual-effect0', 1)
         if key == '0-up' : self.setOperationMap('visual-effect0', 0)
-        self.activeVisual.updateOperationMap(self.op)
+        if self.activeVisual != None:
+            self.activeVisual.updateOperationMap(self.op)
 
     def getVisualOperationMap(self):
-        op = self.activeVisual.getOperationMap()
-        self.op['visual-left'] = op['visual-left']
-        self.op['visual-right'] = op['visual-right']
-        self.op['visual-up'] = op['visual-up']
-        self.op['visual-down'] = op['visual-down']
-        self.op['visual-forward'] = op['visual-forward']
-        self.op['visual-backward'] = op['visual-backward']
-        self.op['visual-rotate-left'] = op['visual-rotate-left']
-        self.op['visual-rotate-right'] = op['visual-rotate-right']
-        self.op['visual-rotate-up'] = op['visual-rotate-up']
-        self.op['visual-rotate-down'] = op['visual-rotate-down']
+        if self.activeVisual != None:
+            op = self.activeVisual.getOperationMap()
+            self.op['visual-left'] = op['visual-left']
+            self.op['visual-right'] = op['visual-right']
+            self.op['visual-up'] = op['visual-up']
+            self.op['visual-down'] = op['visual-down']
+            self.op['visual-forward'] = op['visual-forward']
+            self.op['visual-backward'] = op['visual-backward']
+            self.op['visual-rotate-left'] = op['visual-rotate-left']
+            self.op['visual-rotate-right'] = op['visual-rotate-right']
+            self.op['visual-rotate-up'] = op['visual-rotate-up']
+            self.op['visual-rotate-down'] = op['visual-rotate-down']
+            self.op['visual-up'] = op['visual-up']
+            self.op['visual-down'] = op['visual-down']
+            self.op['visual-effect0'] = op['visual-effect0']
+            self.op['visual-effect1'] = op['visual-effect1']
+            self.op['visual-effect2'] = op['visual-effect2']
+            self.op['visual-effect3'] = op['visual-effect3']
+            self.op['visual-effect4'] = op['visual-effect4']
+            self.op['visual-effect5'] = op['visual-effect5']
+            self.op['visual-effect6'] = op['visual-effect6']
+            self.op['visual-effect7'] = op['visual-effect7']
+            self.op['visual-effect8'] = op['visual-effect8']
+            self.op['visual-effect9'] = op['visual-effect9']
 
     def setOperationMap(self, key, value):
         self.op[key] = value
@@ -302,6 +330,8 @@ class VRC(ShowBase):
         if self.op['cam-rotate-right'] == 1: self.rotateCamRight()
         if self.op['cam-rotate-up'] == 1: self.rotateCamUp()
         if self.op['cam-rotate-down'] == 1: self.rotateCamDown()
+        if self.op['cam-roll-left'] == 1: self.rollCamLeft()
+        if self.op['cam-roll-right'] == 1: self.rollCamRight()
         if self.op['cam-reset'] == 1: self.resetCam()
 
         # visual operations
@@ -349,13 +379,22 @@ class VRC(ShowBase):
         self.cam.setP(self.cam, -self.camSpeed)
         self.camAfterMath()
 
+    def rollCamLeft(self):
+        self.cam.setR(self.cam, -self.camSpeed)
+        self.camAfterMath()
+
+    def rollCamRight(self):
+        self.cam.setR(self.cam, +self.camSpeed)
+        self.camAfterMath()
+
     def resetCam(self):
         pass
 
     def camAfterMath(self):
         if self.op['cam-fix-toggle'] > 0:
             #self.cam.lookAt(self.activeVisual.path.getBounds().getCenter())
-            self.cam.lookAt(self.activeVisual.path)
+            if self.activeVisual != None:
+                self.cam.lookAt(self.activeVisual.path)
         if self.op['cam-sync-toggle'] > 0:
             if self.op['cam-sync-to'] > 0:
                 self.otherCam.setPos(self.cam.getPos())

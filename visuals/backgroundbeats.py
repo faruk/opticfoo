@@ -4,14 +4,10 @@ from direct.interval.IntervalGlobal import Sequence, LerpFunc
 from visual import visual
 
 class BackgroundBeat(visual):
-    def __init__(self, loader, render, snd, windows):
-        visual.__init__(self, loader, render, snd)
-        self.windows = windows
-        self.lastBeat = 0
-        self.maxMag = 0
-        self.setup()
 
     def setup(self):
+        self.lastBeat = 0
+        self.maxMag = 0
         self.path.removeNode()
         self.path = self.render.attachNewNode("bgb")
         self.path.setTransparency(TransparencyAttrib.MAlpha)
@@ -34,10 +30,10 @@ class BackgroundBeat(visual):
     def performBeat(self):
         self.lastBeat = self.sndX
         self.maxMag = max(self.lastBeat, self.maxMag)
-        if self.sndY > 1:
+        if self.sndY > self.snd.xThreshold:
             print "whaaaaaaaaat", self.sndY
             Sequence(self.transparencyLerp).start()
-        if self.sndX > 30:
+        if self.sndX > self.snd.yThreshold:
             Sequence(self.colorLerp).start()
             print "whuuuuuz", self.sndX
 

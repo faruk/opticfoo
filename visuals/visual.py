@@ -1,4 +1,5 @@
 from operationmap import operationMap
+from panda3d.core import TransparencyAttrib
 
 class visual:
     def __init__(self, loader, render, snd):
@@ -16,9 +17,9 @@ class visual:
         self.loader = loader
         self.render = render
 
-        self.path = self.loader.loadModel("monitor")
-        self.path.reparentTo(self.render)
+        self.path = self.render.attachNewNode('dummy')
         self.path.setPos(0,0,0)
+        self.path.setTransparency(TransparencyAttrib.MAlpha)
 #        self.path.setRenderModeWireframe()
 
         self.attached = True
@@ -32,6 +33,8 @@ bla bla blab la... .
 
 
         self.setup() # also apply custom stuff
+        self.detach()
+        self.path.setTransparency(TransparencyAttrib.MAlpha)
 
     def getBeat(self):
         self.sndX, self.sndY, self.sndZ = self.snd.getBeat()
@@ -41,7 +44,6 @@ bla bla blab la... .
         pass
 
     def performBeat(self):
-        self.scaleToBeat()
         pass
 
     def moveLeft(self):
@@ -80,6 +82,36 @@ bla bla blab la... .
     def rollRight(self):
         self.path.setR(self.path, -self.visualMovementSpeed)
 
+    def effect0(self):
+        pass
+
+    def effect1(self):
+        pass
+
+    def effect2(self):
+        pass
+
+    def effect3(self):
+        pass
+
+    def effect4(self):
+        pass
+
+    def effect5(self):
+        pass
+
+    def effect6(self):
+        pass
+
+    def effect7(self):
+        pass
+
+    def effect8(self):
+        pass
+
+    def effect9(self):
+        pass
+
     def scaleToBeat(self):
         self.path.setScale(self.scale + ( 1*(self.sndX/100)))
 
@@ -100,6 +132,25 @@ bla bla blab la... .
     def getHpr(self):
         return self.path.getHpr()
 
+    def setScale(self, value):
+        self.scale = value
+        print "set scale: ", value
+        self.path.setScale(value)
+
+    def getScale(self):
+        return self.scale
+
+    def getSpeed(self):
+        return self.visualMovementSpeed
+
+    def setAlpha(self, value):
+        self.transparency = value
+        print "transparency", value
+        self.path.setAlphaScale(self.transparency)
+
+    def getAlpha(self):
+        return self.transparency
+
     def update(self):
         if self.op['visual-left'] == 1: self.moveLeft()
         if self.op['visual-right'] == 1: self.moveRight()
@@ -111,6 +162,18 @@ bla bla blab la... .
         if self.op['visual-rotate-right'] == 1: self.rotateRight()
         if self.op['visual-rotate-up'] == 1: self.rotateUp()
         if self.op['visual-rotate-down'] == 1: self.rotateDown()
+        if self.op['visual-roll-left'] == 1: self.rollLeft()
+        if self.op['visual-roll-right'] == 1: self.rollRight()
+        if self.op['visual-effect0'] == 1: self.effect0()
+        if self.op['visual-effect1'] == 1: self.effect1()
+        if self.op['visual-effect2'] == 1: self.effect2()
+        if self.op['visual-effect3'] == 1: self.effect3()
+        if self.op['visual-effect4'] == 1: self.effect4()
+        if self.op['visual-effect5'] == 1: self.effect5()
+        if self.op['visual-effect6'] == 1: self.effect6()
+        if self.op['visual-effect7'] == 1: self.effect7()
+        if self.op['visual-effect8'] == 1: self.effect8()
+        if self.op['visual-effect9'] == 1: self.effect9()
 
     def updateOperationMap(self, op):
         self.op = dict(op)
@@ -123,3 +186,4 @@ bla bla blab la... .
 
     def setMovementSpeed(self, value):
         self.visualMovementSpeed = value
+

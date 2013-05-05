@@ -1,0 +1,50 @@
+<CoordinateSystem> { Z-Up }
+
+<VertexPool> vpool {
+  <Vertex> 0 {
+    0 0 0
+    <UV> {
+      0 0
+      <Tangent> { 1 0 0 }
+      <Binormal> { 0 0 1 }
+    }
+    <Normal> { 0 -1 0 }
+    <RGBA> { 1 1 1 1 }
+  }
+  <Vertex> 1 {
+    0 0 1
+    <UV> {
+      0 1
+      <Tangent> { 1 0 0 }
+      <Binormal> { 0 0 1 }
+    }
+    <Normal> { 0 -1 0 }
+    <RGBA> { 1 1 1 1 }
+  }
+  <Vertex> 2 {
+    1 0 0
+    <UV> {
+      1 0
+      <Tangent> { 1 0 0 }
+      <Binormal> { 0 0 1 }
+    }
+    <Normal> { 0 -1 0 }
+    <RGBA> { 1 1 1 1 }
+  }
+  <Vertex> 3 {
+    1 0 1
+    <UV> {
+      1 1
+      <Tangent> { 1 0 0 }
+      <Binormal> { 0 0 1 }
+    }
+    <Normal> { 0 -1 0 }
+    <RGBA> { 1 1 1 1 }
+  }
+}
+<Polygon> {
+  <VertexRef> { 1 0 3 <Ref> { vpool } }
+}
+<Polygon> {
+  <VertexRef> { 3 0 2 <Ref> { vpool } }
+}

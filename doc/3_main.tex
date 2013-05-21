@@ -1,0 +1,184 @@
+\section{Anforderungsanalyse}
+
+
+\subsection{VJing}
+
+Die Pr\"asentation von visuellem Material setzt gewisse Technik vorraus, welches verschiedene Medienformate unterst\"utzt,
+andere nur unter Umst\"anden und manches vielleicht gar nicht. Beispielsweise unterst\"utzt ein Videorecorder keine digitalen
+Videodateien. M\"ochte man die Performance mithilfe von Videoclips realisieren und braucht Funktionen wie Zeitraffer oder
+automatisches Vorw\"arts-R\"uckw\"arts-Abspielen ist eine Software gesucht die das kann. Legt man viele Videos \"ubereinander 
+setzt das gewisse Rechenressourcen vorraus, mit denen das Resultat dargestellt wird.
+
+Vor allem auf der Softwareseite sind viele Abh\"angigkeiten zu beachten. Da bei dem VRC-Konzept das Abspielen von Videoclips
+nicht verloren gehen soll, die Darstellung und Animation von 3D-Inhalten zu Musik prim\"ares Ziel sind, stellt sich die Frage
+mit welche Libraries in Frage kommen.
+
+Der Bedienbarkeit kommt auch ein eigenes Feld zu. Viele VJs benutzen MIDI Controller, um die Darstellung zu steuern, da 
+Potentiometer gef\"uhlvolles Einstellen von Parametern erm\"oglicht. Gleichzeitig muss ein VJ auf drastische \"Anderungen 
+an der Darstellung vorbereitet sein.
+
+\subsubsection{Hardware und Software}
+
+Die Hardware sollte mobil sein. Ein Videoprojektor und ein Laptop sind die Grundlage f\"ur das Performen. F\"ur die 
+Soundanalyse kann man direkt das Signal von einem Verst\"arker abgreifen oder \"uber ein Mikrofon aufnehmen. Gleichzeitiges 
+Abspielen von mehreren Visuals auf einmal sollte m\"oglich sein. Das Anordnen der Visuals in einem dreidimensionalen
+Raum erfordert Software, die das kann und auf Hardwareseite ist 3D-Beschleunigung n\"otig. 
+\\
+Ein Laptop, der mehrere Videoclips und 3D-Modelle auf einmal berechnet und dazu den Sound analysiert und mit der Szenerie
+verkn\"upft um Animationen und Visualit\"at zu erzeugen, braucht ein gewisses Mass an Rechenkraft. Da nicht nur die 
+Grafikkarte zum Rendern beansprucht wird, sondern vor allem auch die CPU f\"ur das schnelle Analysieren des Sounds und 
+Ausf\"uhren von Funktionen zust\"andig ist, darf hier nicht gespaart werden. Je nach dem wie Aufw\"andig die Szenerie
+gestaltet ist ergeben sich Mengen von Polygonen, die transformiert werden m\"ussen. Auch hier sollten gen\"ugend 
+Leistungsreserven vorhanden sein, weshalb von Integrierten Grafikkarten abzuraten ist, da dedizierte Grafikkarten 
+momentan mehr Leistung haben.
+
+Laptops, die f\"ur Computerspiele, technisches Zeichnen, Bilder- und Videoverarbeitung  konstruiert sind 
+verf\"ugen meist schon \"uber eine dedizierte Grafikkarte und eine besserer CPU als regul\"arer B\"urorechner.
+\\
+Hinsichtlich Kosten und Plattformwahl soll m\"oglichst freie Software verwendet werden. Eine leicht erlernbare 
+Programmiersprache zur Erstellung von Visuals soll es VJs mit mit geringen Programmierkenntnissen erm\"oglichen Visuals
+f\"ur das Pr\"asentationsprogramm zu programmieren. Eine freie Grafikbibliothek wie OpenGL bietet eine Grundlage f\"ur 
+Rendering der Szenerie, jedoch stellt das Programmieren von OpenGL eine gro\ss e H\"urde f\"ur VJs mit nicht so tiefen
+Programmierkenntnissen dar. Deher muss es die Komplexit\"at von OpenGL vereinfacht werden und Bibliotheken die auf OpenGL
+aufsetzen benutzt werden.
+
+
+\subsubsection{Bedienbarkeit}
+
+F\"ur die Bedienung sollen standard Eingabeger\"ate wie Tastatur und Maus gen\"ugen. Vor allem die Einstellung der Ansicht
+und Positionierung der Visuals in einem 3D-Raum muss auf einer Tastatur komfortabel m\"oglich sein - und das 
+wom\"oglich stundenlang. \"Uberblendungen und Visualwechsel beinhalten viele Aktionen wie das \"Andern von Transparenzen oder
+Farben und muss fl\"ussig machbar sein. Die Ansicht durch eine virtuelle Kamera erfordert eine bewegliche Kamera. Bei 
+Rotationen der Kamera ist es wichtig die Orientierung nicht zu verlieren.
+
+Eine Kombination aus Spielsteuerung f\"ur das ansteuern der Visual-Objekte und der Kamera scheint mit einer Tastatur 
+realisierbar und sinnvoll. Das Anzeigen und Einstellen von Statusinformationen von Kamera,
+Soundanalyse und aktiven Visuals sowie die \"Ubersicht der verf\"ugbaren Visuals erfordert eine geeignete 
+Benutzerschnittstelle mit Panelen an denen Parameter abgelesen und ge\"andert werden k\"onnen.
+
+Wichtig ist eine Reservierung von Tasten auf der Tastatur  f\"ur die Steuerung der ins Visual individuell einprogrammierten
+Routinen.
+
+
+\subsection{Visuals}
+
+In dem VJ-Konzept ist der Fokus auf eine liberale Visualgestaltung ausgerichtet. Operationen wie Verschieben, Skalieren, 
+Rotieren und transformation zu Musik sollen jedem Visual aufgrund seines Charakters als Objekt in einem 3D-Raum m\"oglich sein. 
+Der Sound
+soll von Visuals genutzt werden k\"onnen um Effekte auszul\"osen oder zu beeinflussen. Visuals bestehen bspw aus Punkten die zu 
+geometrischen Formen verbunden werden k\"onnen. Vorgefertigte 3D-Modelle sollen unterst\"utzt werden. Texturen k\"onnen 
+aus Bilddateien, Shaderprogrammen oder Videoclips bestehen. Durch das Programmieren der Visuals hat man 
+die M\"oglichkeit eigene Bibliotheken zu benutzen und Algorithmen zur Visualisierung zu implementieren. 
+ 
+\subsubsection{Erstellen}
+
+F\"ur das Erstellen von Visuals ist es wichtig, dass der K\"unstler seine Visualidee verwirklichen kann. G\"angige 
+Formate f\"ur Bilddateien und Videos m\"ussen unterst\"utzt werden. Dadurch hat der (VJ)K\"unstler die M\"oglichkeit
+verschiedene Tools zu benutzen um Bilder oder Videos zu pr\"aparieren. Im 3D-Raum k\"onnen diese dann als Texturen auf
+Fl\"achen dargestellt werden. 
+
+Vor allem soll aber der VJ auch Punkte zu Poligonnetzen verbinden k\"onnen. So k\"onnen 3D-Modelle mit 3D-Grafikprogrammen
+wie bspw Blender erstellt und in Visuals verwendet werden. Dadurch ist es auch m\"oglich vorgefertigte 3D-Modelle aus dem
+Internet zu benutzen, welche von Anbietern zum Beispiel f\"ur CAD (Computer Aided Design), oder Spiele zum Download bereitgestellt 
+werden. Manche Formate bieten die M\"oglichkeit Animationen zu direkt im Model zu definieren. Unabh\"angig von Formaten
+m\"ussen die Inhalte auch durch selbstgeschriebene Funktionen animierbar sein. 
+
+Mit eigens definierten Funktionen kann man auf die Skalierung, Farbe, Transparenz oder Positionierung Einfluss nehmen.
+Das Soundsignal als wichtiger Bestandteil muss in Funktionen verarbeitbar sein. Durch die Analyse des Soundsignals k\"onnen 
+sich Funktionen dynamisch gegenseitig aufrufen und mit der k\"unstlerischen Intention verkn\"upft werden. So kann das 
+Visual programmiert werden auf B\"asse vorprogrammierte Effekte auszul\"osen.
+
+Mit der Programmierung der Tasteneingabe kann das Visual gesteuert werden. Die Zustandsa\"nderung auf eine Tasteneingabe
+muss bei der Erstellung definiert werden k\"onnen. Auch hierbei sind Funktionen die Grundlage daf\"ur.
+
+primitive, 3d meshes, 
+fertige modelle mit blender
+videoclips
+tastenbelegung
+
+
+\subsection{Darstellung}
+
+Ein Programm zur Darstellung der Visuals ist n\"otig um alle Visuals mit dem Soundsignal zu versorgen, Eingaben entgegen
+nimmt und auf Parameter der Visuals zugreiffen kann. 
+
+
+Das Programm stellt den 3D-Raum bereit in denen die Visuals geladen werden k\"onnen sowie eine \"Ubersicht \"uber
+Parameter, Eingaben und Metainformationen \"uber die Zust\"ande der Visuals. Eine \"Ubersicht \"uber die Positionen
+der Visuals und Kameras sowie der Ausrichtung der Kamera hilft dabei Szenen und Kameraeinstellungen zu koordinieren.
+
+Diese Anforderungen k\"onnen in einer GUI untergebracht werden. Eine GUI fasst dabei Eingabeschnittstellen f\"ur die Visuals,
+die Kameras und Soundeinstellungen zusammen, an denen die wichtige Daten \"uber den Zustand des Dargestellten abgelesen
+werden k\"onnen.
+
+Eine Ansicht durch eine Kamera wird dabei in Vollbildschirmmodus an das Ausgabeger\"at (Videoprojektor) geschickt. Eine 
+andere Ansicht in den Raum erm\"oglicht das direkte Interagieren mit Visuals und Kamera. Diese Ansicht soll den
+Computerspielcharakter bereitstellten wodurch direkte Manipulation an Rotation und Position m\"oglich ist.
+
+%Dabei m\"ussen verschiedene Tasks ausgef\"uhrt werden.
+%programm zur das sound verarbeitet, 
+%parameter einstellung
+%taskmanager, 
+%Eingabe verarbeiten
+
+%\subsubsection{3D Raum und Camera}
+
+%Durch die Ansicht des 3D-Raums durch die virtuelle Kamera wird der 3D-Raum zum Beh\"alter f\"ur Visuals, der betrachtet wird.
+%Die Positionierung der Kamera und der Visuals
+
+%container fuer visuals
+%beinhaltet cameras zur ansicht
+%Camerapositionierung
+
+\subsubsection{Performen}
+
+Die Performance des VJs besteht aus dem Laden und Entfernen von Visuals in dem 3D-Raum. Visuals werden um die
+Kamera angeordnet und bilden die Szenerie. Bei \"Anderungen in der Musik wird die Szenerie angepasst oder der
+Blickwinkel auf die Szenerie ge\"andert. Musik enth\"alt oft H\"ohepunkte und viele k\"unstlerische Stilmittel.
+Anhand der audialen Wahrnehmung ... balblala
+laden/entfernen von visuals
+ansichten aendern ohne ruckel / schnitte / camerafahrten
+visuals positionieren
+ueberblendungen / fading
+
+
+
+
+
+\section{Entwurf}
+
+\subsection{\"Uberlegungen}
+
+\subsubsection{Soundanalyse}
+
+\subsubsection{Bedienung}
+
+\subsection{Spiele-Engine}
+
+\subsubsection{Szenengraph}
+
+\subsection{Visual-Klasse}
+
+\subsubsection{Attribute}
+
+\subsubsection{Methoden}
+
+
+
+\section{Prototyp}
+
+\subsection{Softwarewahl}
+
+\subsection{Datenstruktur}
+
+\subsection{Arbeitsweise}
+
+
+
+\section{Test}
+
+\section{Evaluierung}
+
+\section{Verbesserungen}
+
+\section{Resultat}

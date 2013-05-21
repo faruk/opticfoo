@@ -51,7 +51,6 @@ class VRC(ShowBase):
 
         # refactor this
         self.activeVisual = self.factory.visuals['placeholder']
-        self.factory.visuals['firsttry'].detach()
         self.visuals['placeholder'] = self.activeVisual
         self.otherCam = self.makeCamera(self.otherWin)
         self.camSpeed = 1.0

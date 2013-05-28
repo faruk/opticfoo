@@ -134,28 +134,174 @@ Computerspielcharakter bereitstellten wodurch direkte Manipulation an Rotation u
 
 Die Performance des VJs besteht aus dem Laden und Entfernen von Visuals in dem 3D-Raum. Visuals werden um die
 Kamera angeordnet und bilden die Szenerie. Bei \"Anderungen in der Musik wird die Szenerie angepasst oder der
-Blickwinkel auf die Szenerie ge\"andert. Musik enth\"alt oft H\"ohepunkte und viele k\"unstlerische Stilmittel.
-Anhand der audialen Wahrnehmung ... balblala
-laden/entfernen von visuals
-ansichten aendern ohne ruckel / schnitte / camerafahrten
-visuals positionieren
-ueberblendungen / fading
+Blickwinkel auf die Szenerie ge\"andert. 
 
+Musik enth\"alt oft H\"ohepunkte und viele k\"unstlerische Stilmittel.
+Anhand der akustischen Wahrnehmung des VJs kann an Wendepunten in der Musik in Echtzeit die Performance des VJs
+an die Musik anpasst werden. Durch hineinfaden eines anderen Visuals, einem Schnitt oder dem Ausl\"osen eines 
+Effekts erh\"alt die Musik ihre visuelle Individualit\"at w\"ahrend des Events.
 
-
-
+Dabei soll das Programm Operationen wie Schnitte, Kamerafahrten, Positionierung und Rotationen, Fading oder
+\"Anderungen an der Kameraeinstellung schnell auf Visual und Kamera f\"ur den VJ schell ausf\"uhrbar gestalten.
+Hauptaugenmerk f\"ur das Performen ist die Usability. Da die Eingabeger\"ate f\"ur den Anfang aus 
+Maus und Tastatur bestehen muss ein geeignetes Bedienkonzept erarbeitet werden.
 
 \section{Entwurf}
 
+Beim Entwurf m\"ussen \"Uberlegungen getroffen werden, welche die Auswahl der Software im Vorfeld auf
+die in Frage kommenden Plattformen und n\"otige Programmbibliotheken reduziert. F\"ur die Implementierunge
+wichtige Datenstrukturen m\"ussen so gew\"ahlt sein, dass man zur Laufzeit den Variablenzustand von Sound-
+und Bedienungseingabe geschickt an allen relevanten Stellen abrufen und \"andern kann.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{pictures/vrc-component1.png}
+    \caption{Strukturdarstellung des VJ-Konzeptprogramms VRC, bestehend aus Soundeingabe und einem Container f\"ur
+    3D-Raum und Visuals welche von einem User f\"ur die VJ-Performance genutzt werden.}
+\end{figure}
+
+Das Konzept weist eine grundlegende Struktur aus 3D-Raum, Visuals, Soundeanalyse und Bedienkonzept auf
+
+
 \subsection{\"Uberlegungen}
+
+OpenGL entwickelte sich zum Industriestandard f\"ur interaktive 2D und 3D-Grafiken (* http://www.opengl.org/about/ )
+und bietet eine umfangreiche Programmierschnittstelle f\"ur Grafikprogrammierung. Diese Schnittstelle wird durch
+Grafikkarten hardwareseitig unterst\"utzt. F\"ur die meisten popul\"aren Sprachen gibt es Sprachanbindungen mit denen
+man auf die Schnittstelle direkt zugreiffen kann. 
+
+Spiel-Engines als Programmierger\"ust erscheinen vorteilhaft um 3D-Grafiken in Szene zu setzen. Durch die Beschr\"ankung
+auf standard Eingabeget\"ate sind Spiel-Engines hervorragend f\"ur die Verarbeitung von Benutzereingabe und Steuerung
+des 3D-Raums geeignet. Auch das Erstellen von Visuals erf\"ahrt durch die Verwendung von Spiel-Engines Vorteile. Elemente
+werden in Visuals gruppiert und mit Funktionen unter Einbezug verschiedener Parameter modifiziert/transformiert. Anhand
+des Soundsignals k\"onnen ausgew\"ahlte Parameter dem musikalischen Zufall \"uberlassen werden. Dadurch wird eine 
+akustisch-visuelle Koppelung zwischen Visual und Umgebung m\"oglich. Die Soundeingabe soll m\"oglichst unabh\"angig von
+technischen Faktoren m\"oglich sein. Laptops haben meist schon standardm\"a\ss{}ig ein Mikrofon eingebaut, das man als
+standard Eingabeger\"at bei Performances nutzen kann. 
+
+Wichtig vor allem ist, dass man Effekte durch Tastendruck ausl\"osen kann. Dazu m\"ussen Visuals frei programmierbar sein
+um mit Code den Ablauf des Effekts zu definieren. Dadurch dass Tasten mit Programmierung belegt werden k\"onnen, sind f\"ur
+die Visuals individuelle Funktionen programmierbar. Durch Anwendung der objektorientierten Programmierung k\"onnen 
+Funktionen (Methoden) k\"onnen Objekte als Container f\"ur Funktionen und Daten dienen. Objektorientiertes Programmieren
+eignet sich also f\"ur Visuals.
+
+
+%OpenGL - Hardwarebeschleunigt
+%Framework f\"ur OpenGL - Game Engine, SDL, Processing
+%Mikrofon als Soundinput - standard laptops haben bereits mic
+%Python/C++/Java - Comparision Libraries/Bindings
+%Libraries - Soundanalyse, GUI, 
+%Datenstrukturen f\"ur Visuals
+%Visualrealisierung - OpenGL, eigene Funktionen
+
+\subsubsection{Datenstrukturen}
+
+Um die Visuals im Programm vorzuhalten und kann eine Liste mit Verweisen auf die Visuals verwendet werden. F\"ur 
+die Visual-Elemente muss der 3D-Raum eine Datenstruktur vorhalten in den die Elemente hineingeladen werden k\"onnen.
+Daf\"ur eignet sich eine Baumstruktur ganz gut. Der 3D-Raum stellt die Wurzel des Baums dar, jedes Visual ist ein
+Kind des 3D-Raums. Ein Visual besteht aus einem Knoten, der als Wurzel f\"ur die Visual-Elemente fungiert
+(siehe Abbildung). Dieser Baum stellt den Szenengraphen dar, in dem die OpenGL-Objekte der Visuals, wie Modelle, Texturen 
+oder Videos geladen werden.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{pictures/data_structure1.png}
+    \caption{Skizze eines Szenengraphen}
+\end{figure}
+
+%Liste mit VisualObjekt-Referenzen
+%Visual-Elemente werden von Visuals in Graphen geladen
+%VisualObjekt haelt Referenzen auf seine eigenen Elementobjekte im Graph der VisualElemente
+%3D-Raum wird aufgebaut anhand des Graphen, der den zu sehenden Inhalt enth\"alt
 
 \subsubsection{Soundanalyse}
 
+Es gibt verschiedene M\"oglichkeiten Sound zu analysieren. Bei diesem Entwurf wird Wert darauf gelegt, dass 
+Soundwerte auf einfache Art in den Visuals verarbeitet werden k\"onnen. Es sollen B\"asse, Mitten und H\"ohen
+als Werte von  0 bis X abgelegt werden.
+
+Die Soundanalysekomponente muss kontinuierlich die Soundeingabe verarbeiten. Das aufgenommene Frequenzband
+wird unterteilt in Bassband, Mittelband und H\"ohenband. 
+Das Bassband erstreckt sich \"uber die Frequenzen 0Hz bis 100Hz, die Mittelt\"one \"uber 100Hz bis 1000Hz,
+und die Hoehen \"uber 1000Hz bis 44100Hz.
+F\"ur jedes Band wird eine Magnitude berechnet, welche die Intensit\"at Samples auf den drei B\"andern angibt.
+Dem Mikrofonsignal werden kontinuierlich Samples entnommen um die Magnitude \"uber den Frequenzb\"andern zu 
+messen und in Soundzustandsvariablen zu speichern. Das Soundsignalsample ist ein Vektor aus 16Bit Integer-Werten -
+f\"ur jede Frequenz ein Integer.
+
+Eine einfache Methode den die Musik zu analysieren und einen Beat zu erkennen ist beispielsweise das Vergleichen
+der Magnitude mit einem Grenzwert. Liegt die Magnitude \"uber dem Grenzwert, so kann das als Beat interpretiert
+werden worauf eine Aktion folgen kann.
+
 \subsubsection{Bedienung}
 
-\subsection{Spiele-Engine}
+Da in den Anforderungen, die Benutzung von standard Eingabeger\"aten gefordert ist stellt vor allem die
+Tastatur zur Steuerung von Visuals eine gute Plattform dar. Das Virtual Room Concept verh\"alt sich von der
+Navigieren im 3D-Raum \"ahnlich dem des Bewegens von Aktoren in Computerspielen oder Arbeiten mit 3D-Programmen
+wie Blender. In Computerspielen ist das was der Spieler sieht eine Ansicht einer virtuellen Kamera auf die ihn
+virtuell umgebende Szenerie. Eine Grundlage zum Spielen ist das Bewegen des Agenten im Spiellevel, was dem 
+Bewegen einer virtuellen Kamera in einem 3D-Raum entspricht.
+
+Viele Spiele, allen voran First-Person-Spiele (FPS) haben oft f\"ur das Bewegen des virtuellen Agenten standardm\"a\ss{}ig
+die selbe Tastenbelegung. Auch andere Funktionen wie die Auswahl von Gegenst\"anden ist oft \"ahnlich belegt.
+Der gr\"o\ss{}te Unterschied zu den meisten FPS ist es wohl, dass man die Kamera, bzw die Visuals zus\"atzlich um die
+L\"angsachse rotieren moechte.
+
+In diesem Entwurf wird die Bedienung von FPS f\"ur die Kamera und Visuals adaptiert. F\"ur die Rotationen wird
+auch die Tastatur verwendet. Hierf\"ur werden zus\"atzlich Belegungen definiert. Diese unterscheiden sich von
+denen in FPS. In FPS wird f\"ur die den Nick- und Gier-Winkel h\"aufig die Maus verwendet. Da f\"ur Kamera und
+Visual jeweils Rotationen und Bewegungen m\"oglich sein sollen, wird die Bedienung f\"ur diese Aktionen 
+vereinfacht indem die selbe Belegung f\"ur Visual und Kamera gilt.
+
+Die Abbildung zeigt den Entwurf f\"ur eine m\"ogliche Tastenbelegung.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{pictures/usage_keyboard_layout1.png}
+    \caption{Skizze eines Szenengraphen}
+\end{figure}
+
+F\"ur das Navigieren in der grafischen Oberfl\"ache wird die Maus verwendet.
+
+%Tastatur, Maus
+%Belegung Feste und programmierbare
+%Bild
+
+\subsubsection{Grafischen Oberfl\"ache}
+
+In der grafischen Oberfl\"ache werden Daten aus dem Zustand des VRC aufbereitet, um Statusinformationen \"uber die
+Visuals und Kamera anzuzeigen. Ausserdem werden \"uber die grafische Oberfl\"ache die Visuals in den 3D-Raum hinzugef\"ugt
+oder entfernt. Wichtige gemeinsame Funktionen der Visuals k\"onnen in der grafische Oberfl\"ache zusammengefasst und 
+der Manipulation zug\"anglich gemacht werden. 
+
+Es m\"ussen die wichtigen Entit\"aten zum VJing schnell abrufbar sein. Gleichzeitig hat man aber nur begrenzten Platz auf
+dem Bildschirm um Vorschaufenster und Menus unterzubringen.
+Durch eine geschickte Unterbringung der Entit\"aten in Menus die mit Reitern navigierbar gestaltet sind, kann man Menuelemente
+f\"ur den Visualpool, geladene Visuals, Kamera- und Soundeinstellungen gruppieren.
+%Eine geschickte Unterbringung der Entit\"aten unter Reitern
+%kann man seperat Visualpool, geladene Visuals, Kamera- und Soundeinstellungen erm\"oglicht das Gruppieren der verschiedenen
+%Oberfl\"achenelemente. 
+Die verschiedenen Entit\"aten Sound, Visuals und Kamera haben auch ihre eigenen Anforderungen an
+Schnittstellen. So haben Visuals eine Schnittstelle f\"ur Skalierung, Transparenz, die Kamera aber nicht. Da es sich um
+eine \"uberschaubare Menge an Entit\"aten handelt ist ein Reiterlayout f\"ur den VJ beim VJing ausreichend um Kontrolle
+\"uber die Visualwerte zu behalten.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{pictures/gui1.png}
+    \caption{Skizze der Grafischen Oberfl\"ache auf einem Monitor als Fenster f\"ur das Virtual Room Concept und die Vorschau}
+\end{figure}
+
+
+%\subsection{Spiele-Engine}
+
+%Panda3d
+%3d-Raum
+%Kamera (eigene subsubsection)
 
 \subsubsection{Szenengraph}
+
+Renderer
 
 \subsection{Visual-Klasse}
 

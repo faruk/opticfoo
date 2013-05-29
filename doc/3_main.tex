@@ -292,18 +292,75 @@ eine \"uberschaubare Menge an Entit\"aten handelt ist ein Reiterlayout f\"ur den
     \caption{Skizze der Grafischen Oberfl\"ache auf einem Monitor als Fenster f\"ur das Virtual Room Concept und die Vorschau}
 \end{figure}
 
+Das Resultat, welches auf im Vorschaufenster zu sehen ist wird auf \"uber einen zweiten Videoausgang ohne Fensterrahmen auf
+einem externen Ausgabeger\"at angezeigt.
 
-%\subsection{Spiele-Engine}
+
+\subsubsection{Engine}
+
+Letztendlich braucht man ein Framework, mit dem die Grafikausgabe programmiert werden kann. F\"r die verschiedenen anfallenden
+Aufgaben braucht man einen Taskmanager, der wiederholende Aufgaben erledigt. Das Framework dient als Schicht zwischen OpenGL
+und den zus\"atzlichen Komponenten wie Soundanalysierer und grafischer Oberfl\"ache.
+
+Spiel-Engines besitzen Eigenschaften, die f\"ur sie Realisierung der Virtual-Room-Concept-Programms essentiell sind. Vor
+allem bieten sie eine Datenstruktur zur Unterbringung der 3D-Geometrie - meist einen Szenengraphen in Baumstruktur.
+Auf den Szenengraphen wird \"uber eine Schnittstelle in der Spiel-Engine zugegriffen. Ein Task-Manager der kontinuierlich
+die Benutzereingaben und die Soundanalyse verwaltet erleichtert das Programmieren der Ablauflogik innerhalb des VRC-Programms.
+Zum einen mussen die Visuals stets mit Soundwerten versorgt werden, zum Anderen m\"ussen die Eingaben des Benutzers
+entgegengenommen und ausgef\"uhrt werden.
+
+F\"ur die Visualprogrammierung ist die Wahl einer Spiele-Engine vorteilhaft, da man eine Abstraktionsebene f\"ur das 
+Zusammenstellen von Geometrie und 3D-Modellen in den Szenengraphen hat. 
+%Beim Performen der Visuals ist es wichtig die Visuals in die Szenerie laden und entfernen zu k\"onnen. 
+Auch f\"ur das Performen eignen sich Spiele-Engines gut und besitzen dank des 
+Szenengraphen und seinen Schnittstellen eine einfache M\"oglichkeit Visuals zu laden und zu entfernen. Die Betrachtung 
+der Szenerie durch eine virtuelle Kamera ist eine grundlegende Anforderung f\"ur Spiel-Engines, sowie f\"ur das
+VRC-Programm.
+
+Das Angebot an freien Spiel-Engines ist relativ gro\ss{}, jedoch sollte die Spiel-Engine so gew\"ahlt werden, dass sie
+sich gut mit den anderen  Komponenten des VRC-Programms und ihren Bibliotheken verwenden l\"asst. 
+
+Neben vielen C++ und Java Spiel-Engines existieren auch f\"ur viele andere Sprachen Spiel-Engines. Dabei ist entscheidend,
+dass die Spiel-Engine einen gro\ss{}en Benutzerkreis haben damit ein Interesse besteht, die Spiel-Engine auch in Zukunft
+aktualisiert und weiterentwickelt werden.
+
+Python erfreut sich in der 3D-Gestaltung einer hohen Popularit\"at. Programme wie Blender und auch Modul8 besitzen eine 
+Python-Sprachanbindung. Blender verf\"ugt sogar \"uber eine eigene Spiel-Engine in Python. Mit Python als Sprache f\"ur 
+eine Spiel-Engine erleichtert man durch die relativ einfache Syntax VJs den Einstieg in das Konzept. Eine gute Dokumentation
+der Sprache und der Spiel-Engine hilft bei der Erstellung der Prototyps und der Visuals enorm. Anhand dieser Aspekte
+l\"asst sich die Wahl einengen in eine OpenGL-basierte Spiel-Engine f\"r Python. Die bekanntesten Vertreter von 
+Spiel-Engines f\"ur Python sind Python-Ogre, Spring, Blender oder Panda3d.
+
+Weitere Vorteile von Spiel-Engines sind 
+\begin{itemize}
+    \item Konvertierungswerkzeuge f\"ur viele 3D-Modellingtools
+    \item Shader-Generatoren f\"ur Spezialeffekte
+    \item Kollisionsdetektion und Unterst\"utzung eines Physik-Systems
+\end{itemize}
 
 %Panda3d
 %3d-Raum
 %Kamera (eigene subsubsection)
 
-\subsubsection{Szenengraph}
-
-Renderer
+%\subsubsection{Szenengraph}
+%Renderer
 
 \subsection{Visual-Klasse}
+
+Visuals besitzen durch ihre Anforderungen an Beweglichkeit, Skalierung und andere gew\"unschte Manipulationsm\"oglichkeiten
+eine Menge an gleichen Funktionen, welche diese Operationen umfassen. Da Visuals als Objekte gedacht sind l\"asst sich deren
+Charakterisierung von einer Klasse ableiten.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \begin{center}
+        \includegraphics[width=0.48\textwidth]{pictures/visualclass1.png}
+    \end{center}
+    \caption{Visual-Klasse vererbt einem Visual-Objekt die n\"otigen Daten und Funktionen um im Programm an Soundanalyse
+        und Szenengraph angebunden und einheitlich beweglich zu sein.}
+\end{wrapfigure}
+
+Durch die richtige Initialisierung und einer Standardeinstellung ist das \"Uberschreiben und Erweitern der Visual-Klasse im
+Objekt m\"oglich.
 
 \subsubsection{Attribute}
 

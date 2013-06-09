@@ -1,0 +1,5 @@
+file: http://upload.wikimedia.org/wikipedia/commons/0/06/Wire_frame.svg
+from: http://commons.wikimedia.org/wiki/File:Wire_frame.svg
+found through: http://de.wikipedia.org/wiki/Polygonnetz
+
+20.05.2013

@@ -31,7 +31,7 @@ class VRC(ShowBase):
 
         # set up another camera to view stuff in other window
         props = WindowProperties()
-        props.setSize(800, 600)
+        props.setSize(1600, 900)
         props.setUndecorated(True)
         props.setOrigin(0,0)
         self.otherWin = self.openWindow(props, makeCamera = 0)
@@ -151,7 +151,7 @@ class VRC(ShowBase):
         self.accept('0-up', self.setOperation, ['0-up'])
         self.accept('`', self.toggleHud)
 
-        self.taskMgr.add(self.setOperation, 'keyboardAction', sort = 1, priority = 3)
+        #self.taskMgr.add(self.setOperation, 'keyboardAction', sort = 1, priority = 3)
         self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
         #self.taskMgr.add(self.analyzeSound, 'soundAnalyzer', sort = 1, priority = 1)
         #self.taskMgr.add(self.setSoundScale, 'wobble', sort = 1, priority = 1)

@@ -5,72 +5,61 @@ from panda3d.core import *
 
 class HUD:
 
-    def __init__(self):
-        self.op = operationMap
-        self.oplength = len(self.op)
-        self.opText = []
-        self.opText.append(
-            OnscreenText(
-                align = TextNode.ALeft,
-                pos = (0.9, 0.9),
-                scale = 0.06,
-                fg = (0,0,0,1),
-                bg = (1,0,0,0.5),
-                mayChange = True
-            )
+    def __init__(self, vrc):
+        self.vrc = vrc
+        self.mode = OnscreenText(
+            align = TextNode.ALeft,
+            pos = (-0.99, 0.9),
+            scale = 0.06,
+            fg = (0,0,0,1),
+            bg = (1,1,1,1),
+            mayChange = True
         )
-        i = 0.0
-        x = -1.2
-        for o in self.op:
-            self.opText.append(
-                OnscreenText(
-                    align = TextNode.ALeft,
-                    pos = (x ,0.9-i),
-                    scale = 0.05,
-                    fg = (0,0,0,1),
-                    bg = (1,1,1,0.5),
-                    mayChange = True
-                )
-            )
-            i = i+0.06
-        self.activeOps = {}
-        self.visualOps = {}
-        for v in self.op:
-            if v.startswith("visual-"): self.visualOps[v] = self.op[v]
-        self.camOps = {}
-        for c in self.op:
-            if c.startswith("cam-"): self.camOps[c] = self.op[c]
-        self.updateOperationMap(self.op)
+        self.visual = OnscreenText(
+            align = TextNode.ALeft,
+            pos = (-0.99, 0.8),
+            scale = 0.06,
+            fg = (0,0,0,1),
+            bg = (1,1,1,1),
+            mayChange = True
+        )
+        self.cam = OnscreenText(
+            align = TextNode.ALeft,
+            pos = (-0.99, 0.7),
+            scale = 0.06,
+            fg = (0,0,0,1),
+            bg = (1,1,1,1),
+            mayChange = True
+        )
 
-    def updateOperationMap(self, operationMap):
-        self.op = operationMap
+        self.mode.setText("mode: " + self.vrc.mode)
+        self.visual.setText("visual: " + self.vrc.activeVisual.__class__.__name__)
+        pos = self.vrc.cam.getPos()
+        self.cam.setText("cam: " + str(pos[0]) + "/" + str(pos[1]) + "/" + str(pos[2]))
 
-        # set active ops
-        self.mode = self.op['mode']
-        self.opText[0].setText("MODE: " +self.mode) 
-        
-        # visual hud
-        for v in self.visualOps:
-            self.visualOps[v] = self.op[v]
+    def updateHUD(self):
+        self.mode.setText("mode: " + self.vrc.mode)
+        visualToggle = self.vrc.activeVisual.getVisualToggleInfo()
+        x = y = z = 0
+        h = p = r = 0
+        if self.vrc.activeVisual != None:
+            x, y, z= self.vrc.activeVisual.getPos()
+            h, p, r= self.vrc.activeVisual.getHpr()
+        self.visual.setText(
+            "visual: " + self.vrc.activeVisual.__class__.__name__+ " " +
+            str(int(x)) + "/" + str(int(y)) + "/" + str(int(z)) + " " +
+            str(int(h)) +"/"+ str(int(p))+"/"+str(int(r)) + 
+            " toggle: " + visualToggle
 
-        # cam hud
-        for c in self.camOps:
-            self.camOps[c] = self.op[c]
-
-        # display active values on 
-        if self.mode is "visual" : self.activeOps = self.visualOps
-        if self.mode is "cam" : self.activeOps = self.camOps
-        j = 1
-        for o in self.activeOps:
-            self.opText[j].setText(o +":\t"+ str(self.activeOps[o]))
-            self.opText[j].setBg((1,1,1,0.5))
-            j = j+1
-        k = range(len(self.activeOps)+1, self.oplength)
-        for j in k:
-            self.opText[j].setText("")
-            self.opText[j].setBg((1,1,1,0))
+        )
+        x, y, z = self.vrc.cam.getPos()
+        h, p, r = self.vrc.cam.getHpr()
+        self.cam.setText(
+            "cam: " + str(int(x)) + "/" + str(int(y)) + "/" + str(int(z)) + " " +
+            str(int(h)) +"/"+ str(int(p))+"/"+str(int(r))
+        )
 
     def clear(self):
-        for o in self.opText:
-            o.setText('')
-
+        self.mode.setText('')
+        self.visual.setText('')
+        self.cam.setText('')

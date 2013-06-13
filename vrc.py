@@ -1,6 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
-from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker, loadPrcFileData, TransparencyAttrib
+from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker, loadPrcFileData, TransparencyAttrib, BitMask32
 from operationmap import operationMap
 from hud import HUD
 #from gui import GUI
@@ -25,18 +25,25 @@ class VRC(ShowBase):
         self.snd.start()
 
 
-        self.hud = HUD()
-        self.hudToggle = 1
-        self.setFrameRateMeter(True)
-
         # set up another camera to view stuff in other window
         props = WindowProperties()
-        props.setSize(1600, 900)
+        props.setSize(1280, 1024)
         props.setUndecorated(True)
         props.setOrigin(0,0)
         self.otherWin = self.openWindow(props, makeCamera = 0)
         self.win.setClearColor((0,0,0,1))
         self.otherWin.setClearColor((0,0,0,1))
+        self.gridCard = CardMaker("grid")
+        self.gridCard.setFrame(-10,10,-10,10)
+        self.grid = self.render.attachNewNode(self.gridCard.generate())
+        self.grid.setP(90)
+        self.grid.setZ(-50)
+        self.grid.setTwoSided(1)
+        tex = self.loader.loadTexture("grid.png")
+        self.grid.setTexture(tex)
+        self.grid.setTransparency(TransparencyAttrib.MAlpha, 1)
+        self.grid.setScale(100)
+        self.grid.setAlphaScale(0.15)
 
 
         # allocate visuals
@@ -57,6 +64,13 @@ class VRC(ShowBase):
         self.cam.setPos(0,-100,0)
         self.camAfterMath()
 
+        self.cam.node().setCameraMask(BitMask32.bit(0))
+        self.otherCam.node().setCameraMask(BitMask32.bit(1))
+        self.grid.hide(BitMask32.bit(1))
+
+        self.hud = HUD(self)
+        self.hudToggle = 1
+        self.setFrameRateMeter(True)
 
         # movement keys
         self.accept('a', self.setOperation, ['a'])
@@ -81,6 +95,10 @@ class VRC(ShowBase):
         self.accept('i-up', self.setOperation, ['i-up'])
         self.accept('u', self.setOperation, ['u'])
         self.accept('u-up', self.setOperation, ['u-up'])
+        self.accept('shift', self.setOperation, ['shift'])
+        self.accept('shift-up', self.setOperation, ['shift-up'])
+        self.accept('space', self.setOperation, ['space'])
+        self.accept('space-up', self.setOperation, ['space-up'])
         self.accept('arrow_up', self.setOperation, ['arrow_up'])
         self.accept('arrow_up-up', self.setOperation, ['arrow_up-up'])
         self.accept('arrow_down', self.setOperation, ['arrow_down'])
@@ -127,6 +145,9 @@ class VRC(ShowBase):
         self.accept('f', self.setOperation, ['f'])
         self.accept('g', self.setOperation, ['g'])
         self.accept('t', self.setOperation, ['t'])
+        self.accept('tab', self.setOperation, ['tab'])
+        self.accept('wheel_up', self.setOperation, ['wheel-up'])
+        self.accept('wheel_down', self.setOperation, ['wheel-down'])
 
         # effect keys
         self.accept('1', self.setOperation, ['1'])
@@ -151,10 +172,7 @@ class VRC(ShowBase):
         self.accept('0-up', self.setOperation, ['0-up'])
         self.accept('`', self.toggleHud)
 
-        #self.taskMgr.add(self.setOperation, 'keyboardAction', sort = 1, priority = 3)
-        self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
-        #self.taskMgr.add(self.analyzeSound, 'soundAnalyzer', sort = 1, priority = 1)
-        #self.taskMgr.add(self.setSoundScale, 'wobble', sort = 1, priority = 1)
+        self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
         self.taskMgr.add(self.executeOperation, 'action', sort = 1, priority = 2)
         self.taskMgr.add(self.spreadTheBeat, 'sound', sort = 1, priority = 1)
 
@@ -174,8 +192,8 @@ class VRC(ShowBase):
         return task.cont
 
     def displayOperationHud(self, task):
-        self.hud.updateOperationMap(self.op)
-        return task.cont
+        self.hud.updateHUD()
+        return task.again
 
     def toggleHud(self):
         self.hudToggle = -self.hudToggle
@@ -183,10 +201,12 @@ class VRC(ShowBase):
             self.taskMgr.remove('operationHud')
             self.hud.clear()
         else:
-            self.taskMgr.add(self.displayOperationHud, 'operationHud', sort = 3)
+            self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
         print self.hudToggle
 
     def setOperation(self, key):
+        if key == "v" : self.mode = 'visual'
+        if key == "c" : self.mode = 'cam'
         if self.mode == "escaped" : self.setMode(key)
         if self.mode == "visual" : self.setVisualOperation(key)
         if self.mode == "cam" : self.setCamOperation(key)
@@ -223,10 +243,10 @@ class VRC(ShowBase):
         if key == 'i-up' : self.setOperationMap('cam-roll-right', 0)
         if key == 'u' : self.setOperationMap('cam-roll-left', 1)
         if key == 'u-up' : self.setOperationMap('cam-roll-left', 0)
-        if key == 'page_up' : self.setOperationMap('cam-up', 1)
-        if key == 'page_up-up' : self.setOperationMap('cam-up', 0)
-        if key == 'page_down' : self.setOperationMap('cam-down', 1)
-        if key == 'page_down-up' : self.setOperationMap('cam-down', 0)
+        if key == 'space' : self.setOperationMap('cam-up', 1)
+        if key == 'space-up' : self.setOperationMap('cam-up', 0)
+        if key == 'shift' : self.setOperationMap('cam-down', 1)
+        if key == 'shift-up' : self.setOperationMap('cam-down', 0)
         if key == 'r' : self.setOperationMap('cam-reset', 1)
         if key == 'r-up': self.setOperationMap('cam-reset', 0)
         if key == 'f':
@@ -238,84 +258,69 @@ class VRC(ShowBase):
         if key == 't':
             self.setOperationMap('cam-sync-to', -self.op['cam-sync-to'])
             self.camAfterMath()
+        if key == "wheel-up" : self.increaseCamSpeed()
+        if key == "wheel-down" : self.decreaseCamSpeed()
 
     def setVisualOperation(self,key):
-        self.getVisualOperationMap()
-        if key == 'a' : self.setOperationMap('visual-left', 1)
-        if key == 'a-up' : self.setOperationMap('visual-left', 0)
-        if key == 'd' : self.setOperationMap('visual-right', 1)
-        if key == 'd-up' : self.setOperationMap('visual-right', 0)
-        if key == 'w' : self.setOperationMap('visual-up', 1)
-        if key == 'w-up' : self.setOperationMap('visual-up', 0)
-        if key == 's' : self.setOperationMap('visual-down', 1)
-        if key == 's-up' : self.setOperationMap('visual-down', 0)
-        if key == 'h' : self.setOperationMap('visual-rotate-left', 1)
-        if key == 'h-up' : self.setOperationMap('visual-rotate-left', 0)
-        if key == 'l' : self.setOperationMap('visual-rotate-right', 1)
-        if key == 'l-up' : self.setOperationMap('visual-rotate-right', 0)
-        if key == 'j' : self.setOperationMap('visual-rotate-down', 1)
-        if key == 'j-up' : self.setOperationMap('visual-rotate-down', 0)
-        if key == 'k' : self.setOperationMap('visual-rotate-up', 1)
-        if key == 'k-up' : self.setOperationMap('visual-rotate-up', 0)
-        if key == 'i' : self.setOperationMap('visual-roll-right', 1)
-        if key == 'i-up' : self.setOperationMap('visual-roll-right', 0)
-        if key == 'u' : self.setOperationMap('visual-roll-left', 1)
-        if key == 'u-up' : self.setOperationMap('visual-roll-left', 0)
-        if key == 'page_up' : self.setOperationMap('visual-forward', 1)
-        if key == 'page_up-up' : self.setOperationMap('visual-forward', 0)
-        if key == 'page_down' : self.setOperationMap('visual-backward', 1)
-        if key == 'page_down-up' : self.setOperationMap('visual-backward', 0)
-        if key == '1' : self.setOperationMap('visual-effect1', 1)
-        if key == '1-up' : self.setOperationMap('visual-effect1', 0)
-        if key == '2' : self.setOperationMap('visual-effect2', 1)
-        if key == '2-up' : self.setOperationMap('visual-effect2', 0)
-        if key == '3' : self.setOperationMap('visual-effect3', 1)
-        if key == '3-up' : self.setOperationMap('visual-effect3', 0)
-        if key == '4' : self.setOperationMap('visual-effect4', 1)
-        if key == '4-up' : self.setOperationMap('visual-effect4', 0)
-        if key == '5' : self.setOperationMap('visual-effect5', 1)
-        if key == '5-up' : self.setOperationMap('visual-effect5', 0)
-        if key == '6' : self.setOperationMap('visual-effect6', 1)
-        if key == '6-up' : self.setOperationMap('visual-effect6', 0)
-        if key == '7' : self.setOperationMap('visual-effect7', 1)
-        if key == '7-up' : self.setOperationMap('visual-effect7', 0)
-        if key == '8' : self.setOperationMap('visual-effect8', 1)
-        if key == '8-up' : self.setOperationMap('visual-effect8', 0)
-        if key == '9' : self.setOperationMap('visual-effect9', 1)
-        if key == '9-up' : self.setOperationMap('visual-effect9', 0)
-        if key == '0' : self.setOperationMap('visual-effect0', 1)
-        if key == '0-up' : self.setOperationMap('visual-effect0', 0)
-        if self.activeVisual != None:
-            self.activeVisual.updateOperationMap(self.op)
-
-    def getVisualOperationMap(self):
-        if self.activeVisual != None:
-            op = self.activeVisual.getOperationMap()
-            self.op['visual-left'] = op['visual-left']
-            self.op['visual-right'] = op['visual-right']
-            self.op['visual-up'] = op['visual-up']
-            self.op['visual-down'] = op['visual-down']
-            self.op['visual-forward'] = op['visual-forward']
-            self.op['visual-backward'] = op['visual-backward']
-            self.op['visual-rotate-left'] = op['visual-rotate-left']
-            self.op['visual-rotate-right'] = op['visual-rotate-right']
-            self.op['visual-rotate-up'] = op['visual-rotate-up']
-            self.op['visual-rotate-down'] = op['visual-rotate-down']
-            self.op['visual-up'] = op['visual-up']
-            self.op['visual-down'] = op['visual-down']
-            self.op['visual-effect0'] = op['visual-effect0']
-            self.op['visual-effect1'] = op['visual-effect1']
-            self.op['visual-effect2'] = op['visual-effect2']
-            self.op['visual-effect3'] = op['visual-effect3']
-            self.op['visual-effect4'] = op['visual-effect4']
-            self.op['visual-effect5'] = op['visual-effect5']
-            self.op['visual-effect6'] = op['visual-effect6']
-            self.op['visual-effect7'] = op['visual-effect7']
-            self.op['visual-effect8'] = op['visual-effect8']
-            self.op['visual-effect9'] = op['visual-effect9']
+        if key == 'a' : self.setVisualOperationMap('visual-left', 1)
+        if key == 'a-up' : self.setVisualOperationMap('visual-left', 0)
+        if key == 'd' : self.setVisualOperationMap('visual-right', 1)
+        if key == 'd-up' : self.setVisualOperationMap('visual-right', 0)
+        if key == 'w' : self.setVisualOperationMap('visual-up', 1)
+        if key == 'w-up' : self.setVisualOperationMap('visual-up', 0)
+        if key == 's' : self.setVisualOperationMap('visual-down', 1)
+        if key == 's-up' : self.setVisualOperationMap('visual-down', 0)
+        if key == 'h' : self.setVisualOperationMap('visual-rotate-left', 1)
+        if key == 'h-up' : self.setVisualOperationMap('visual-rotate-left', 0)
+        if key == 'l' : self.setVisualOperationMap('visual-rotate-right', 1)
+        if key == 'l-up' : self.setVisualOperationMap('visual-rotate-right', 0)
+        if key == 'j' : self.setVisualOperationMap('visual-rotate-down', 1)
+        if key == 'j-up' : self.setVisualOperationMap('visual-rotate-down', 0)
+        if key == 'k' : self.setVisualOperationMap('visual-rotate-up', 1)
+        if key == 'k-up' : self.setVisualOperationMap('visual-rotate-up', 0)
+        if key == 'i' : self.setVisualOperationMap('visual-roll-right', 1)
+        if key == 'i-up' : self.setVisualOperationMap('visual-roll-right', 0)
+        if key == 'u' : self.setVisualOperationMap('visual-roll-left', 1)
+        if key == 'u-up' : self.setVisualOperationMap('visual-roll-left', 0)
+        if key == 'space' : self.setVisualOperationMap('visual-forward', 1)
+        if key == 'space-up' : self.setVisualOperationMap('visual-forward', 0)
+        if key == 'shift' : self.setVisualOperationMap('visual-backward', 1)
+        if key == 'shift-up' : self.setVisualOperationMap('visual-backward', 0)
+        if key == '1' : self.setVisualOperationMap('visual-effect1', 1)
+        if key == '1-up' : self.setVisualOperationMap('visual-effect1', 0)
+        if key == '2' : self.setVisualOperationMap('visual-effect2', 1)
+        if key == '2-up' : self.setVisualOperationMap('visual-effect2', 0)
+        if key == '3' : self.setVisualOperationMap('visual-effect3', 1)
+        if key == '3-up' : self.setVisualOperationMap('visual-effect3', 0)
+        if key == '4' : self.setVisualOperationMap('visual-effect4', 1)
+        if key == '4-up' : self.setVisualOperationMap('visual-effect4', 0)
+        if key == '5' : self.setVisualOperationMap('visual-effect5', 1)
+        if key == '5-up' : self.setVisualOperationMap('visual-effect5', 0)
+        if key == '6' : self.setVisualOperationMap('visual-effect6', 1)
+        if key == '6-up' : self.setVisualOperationMap('visual-effect6', 0)
+        if key == '7' : self.setVisualOperationMap('visual-effect7', 1)
+        if key == '7-up' : self.setVisualOperationMap('visual-effect7', 0)
+        if key == '8' : self.setVisualOperationMap('visual-effect8', 1)
+        if key == '8-up' : self.setVisualOperationMap('visual-effect8', 0)
+        if key == '9' : self.setVisualOperationMap('visual-effect9', 1)
+        if key == '9-up' : self.setVisualOperationMap('visual-effect9', 0)
+        if key == '0' : self.setVisualOperationMap('visual-effect0', 1)
+        if key == '0-up' : self.setVisualOperationMap('visual-effect0', 0)
+        if key == 'tab' : self.nextVisual()
+        if key == 'wheel-up' : self.activeVisual.increaseValue()
+        if key == 'wheel-down' : self.activeVisual.decreaseValue()
+        if key == 'g': self.activeVisual.setMovementSpeedToggle()
+        if key == 'f': self.activeVisual.setScaleToggle()
+        if key == 't': self.activeVisual.setTransparencyToggle()
+        if key == 'r': self.activeVisual.resetOperationMap()
 
     def setOperationMap(self, key, value):
         self.op[key] = value
+
+    def setVisualOperationMap(self, key, value):
+        if self.activeVisual != None:
+            print "WATCHOUT!!! " + self.activeVisual.__class__.__name__
+            self.activeVisual.setOp(key, value)
 
     def executeOperation(self, task):
         # camera operations
@@ -389,6 +394,12 @@ class VRC(ShowBase):
     def resetCam(self):
         pass
 
+    def increaseCamSpeed(self):
+        self.camSpeed = self.camSpeed + 0.1
+
+    def decreaseCamSpeed(self):
+        self.camSpeed = self.camSpeed - 0.1
+
     def camAfterMath(self):
         if self.op['cam-fix-toggle'] > 0:
             #self.cam.lookAt(self.activeVisual.path.getBounds().getCenter())
@@ -442,4 +453,10 @@ class VRC(ShowBase):
         self.activeVisual.rollRight()
 
     def displayInfo(self):
-        self.hud.updateOperationMap(self.op)
+        self.hud.updateHUD()
+
+    def nextVisual(self):
+        active = self.activeVisual
+        visuals = self.visuals.values()
+        i = visuals.index(active)
+        self.activeVisual = visuals[(i+1)%len(visuals)]

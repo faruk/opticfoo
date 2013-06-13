@@ -12,6 +12,9 @@ class visual:
         self.visualMovementSpeed = 1.0
         self.scale = 1.0
         self.transparency = 1.0
+        self.transparencyToggle = False
+        self.visualMovementSpeedToggle = False
+        self.scaleToggle = False
 
         self.snd = snd
         self.loader = loader
@@ -23,7 +26,7 @@ class visual:
 #        self.path.setRenderModeWireframe()
 
         self.attached = True
-        self.op = operationMap
+        self.op = operationMap.copy()
 
         self.specialStatusString = """
 This is a visual Template which has no special status.
@@ -151,6 +154,9 @@ bla bla blab la... .
     def getAlpha(self):
         return self.transparency
 
+    def setOp(self, key, value):
+        self.op[key] = value
+
     def update(self):
         if self.op['visual-left'] == 1: self.moveLeft()
         if self.op['visual-right'] == 1: self.moveRight()
@@ -175,11 +181,11 @@ bla bla blab la... .
         if self.op['visual-effect8'] == 1: self.effect8()
         if self.op['visual-effect9'] == 1: self.effect9()
 
-    def updateOperationMap(self, op):
-        self.op = dict(op)
+    #def updateOperationMap(self, op):
+    #    self.op = dict(op)
 
-    def getOperationMap(self):
-        return self.op
+    #def getOperationMap(self):
+    #    return self.op
 
     def getSpecialStatus(self):
         return self.specialStatusString
@@ -187,3 +193,45 @@ bla bla blab la... .
     def setMovementSpeed(self, value):
         self.visualMovementSpeed = value
 
+    def setMovementSpeedToggle(self):
+        self.scaleToggle = False
+        self.transparencyToggle = False;
+        self.visualMovementSpeedToggle = True;
+
+    def setScaleToggle(self):
+        self.transparencyToggle = False
+        self.visualMovementSpeedToggle = False
+        self.scaleToggle = True
+
+    def setTransparencyToggle(self):
+        self.scaleToggle = False
+        self.visualMovementSpeedToggle = False
+        self.transparencyToggle = True
+
+    def increaseValue(self):
+        if self.scaleToggle : 
+            self.setScale(self.scale + 0.01)
+        if self.transparencyToggle : 
+            if self.transparency < 1: 
+                self.setAlpha(self.transparency + 0.01)
+        if self.visualMovementSpeedToggle : 
+            self.setMovementSpeed(self.visualMovementSpeed + 0.01)
+
+    def decreaseValue(self):
+        if self.scaleToggle : 
+            if self.scale > 0 : self.setScale(self.scale - 0.01)
+        if self.transparencyToggle : 
+            if self.transparency > 0: self.setAlpha(self.transparency - 0.01)
+        if self.visualMovementSpeedToggle : 
+            self.setMovementSpeed(self.visualMovementSpeed - 0.01)
+
+    def resetOperationMap(self):
+        for x in self.op:
+            self.op[x] = 0
+        self.visualMovementSpeed = 1
+
+    def getVisualToggleInfo(self):
+        if self.transparencyToggle : return "transparency"
+        if self.visualMovementSpeedToggle : return "speed"
+        if self.scaleToggle : return "scale"
+        else: return "nothing"

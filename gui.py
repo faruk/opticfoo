@@ -1,4 +1,5 @@
 import Tkinter as tk
+import tkFont
 import ttk
 from operationmap import operationMap
 
@@ -6,6 +7,7 @@ class GUI():
     def __init__(self, vrc
         ):
         self.op = operationMap
+        self.bigfont = tkFont.Font(family = 'Courier New', size = 16)
 
         # operationmap preparation for presentation
         self.activeOps = {}
@@ -31,6 +33,7 @@ class GUI():
         self.cameraTab = tk.Frame()
         self.generalTab = tk.Frame()
         self.debugFrame = tk.Frame()
+        self.overviewTab = tk.Frame()
         self.tabs.pack(anchor="nw")
 
         self.tabs.add(self.generalTab)
@@ -43,6 +46,8 @@ class GUI():
         self.tabs.tab(3, text="Insert Visual")
         self.tabs.add(self.visualsTab)
         self.tabs.tab(4, text="Visuals")
+        self.tabs.add(self.overviewTab)
+        self.tabs.tab(5, text="Overview")
 
 
         #self.activeVisual = vrc.activeVisual
@@ -51,18 +56,147 @@ class GUI():
         #self.otherCam = vrc.otherCam
 
         #self.vrc = vrc
-        self.initCameraFrame()
+        #self.initCameraFrame()
 
         self.initVisualsFrame()
 
-        self.initVisualFrame()
+        #self.initVisualFrame()
 
         self.initGeneralFrame()
+
+        self.initOverviewTab()
 
         self.vrc.spawnTkLoop()
 
 
         # general labels
+
+    def initOverviewTab(self):
+        self.activeVisualName = self.visuals.keys()[0]
+        self.activeVisualsListbox = tk.Listbox(self.overviewTab)
+        self.activeVisualsListbox.bind('<<ListboxSelect>>', self.updateActiveVisual)
+        active = []
+        for k in self.visuals.keys():
+            if self.visuals[k]['button'].config()['text'][4] == "attach":
+                active.append(k)
+        for k in active:
+            self.activeVisualsListbox.insert(tk.END, k)
+        self.activeVisualsListbox.grid(column = 0, row = 2, rowspan=30, sticky = tk.NE)
+        x,y,z = self.vrc.activeVisual.path.getPos()
+        h,p,r = self.vrc.activeVisual.path.getHpr()
+        self.visualLabel = tk.Label(self.overviewTab, text = "Visual", font = self.bigfont)
+        self.visualLabel.grid(column = 0, row = 0, sticky = tk.W)
+        self.visualLabelInfo = tk.Label(self.overviewTab, text = "position rotation: ")
+        self.visualLabelInfo.grid(column = 0, row = 1, sticky = tk.E)
+        self.visualPos = tk.Label(self.overviewTab, text = "x: "+str(int(x))+", y: "+str(int(y))+", z: "+str(int(z)))
+        self.visualPos.grid(column = 1, row = 1, sticky = tk.W)
+        self.visualHpr = tk.Label(self.overviewTab, text = "h: "+str(int(h))+", p: "+str(int(p))+", r: "+str(int(r)))
+        self.visualHpr.grid(column = 1, row = 1, sticky = tk.E)
+        self.visualSpeed = tk.Scale(
+            self.overviewTab,
+            from_ = -10.0,
+            to = 10.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.01,
+            length=250,
+            command=self.updateActiveVisualSpeed,
+            label="Visual movement speed"
+        )
+        self.visualSpeed.set(1)
+        self.visualSpeed.grid(column = 1, row = 12, sticky = tk.E)
+        self.visualScale= tk.Scale(
+            self.overviewTab,
+            from_ = 0.0,
+            to = 10.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.01,
+            length=250,
+            command=self.updateActiveVisualScale,
+            label="Visual scale"
+        )
+        self.visualScale.set(1)
+        self.visualScale.grid(column = 1, row = 13, sticky = tk.E)
+        self.visualTransparency= tk.Scale(
+            self.overviewTab,
+            from_ = 0.0,
+            to = 1.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.01,
+            length=250,
+            command=self.updateActiveVisualTransparency,
+            label="Visual transparency"
+        )
+        self.visualTransparency.set(1)
+        self.visualTransparency.grid(column = 1, row = 14, sticky = tk.E)
+
+        self.separator = ttk.Separator(self.overviewTab, orient = tk.HORIZONTAL)
+        self.separator.grid(column = 0, row = 15, columnspan = 2, sticky = tk.EW)
+
+        # camera labels
+        self.camLabel = tk.Label(self.overviewTab, text = "Camera", font = self.bigfont)
+        self.camLabel.grid(column = 0, row = 16, sticky = tk.W)
+        self.camLabelInfo = tk.Label(self.overviewTab, text = "position / rotation: ")
+        self.camLabelInfo.grid(column = 0, row = 17, sticky = tk.E)
+        self.camPos = tk.Label(self.overviewTab, text = "")
+        self.camPos.grid(column = 1, row = 17, sticky = tk.W)
+        self.camHpr = tk.Label(self.overviewTab, text = "")
+        self.camHpr.grid(column = 1, row = 17, sticky = tk.E)
+        self.camSpeed = tk.Scale(
+            self.overviewTab,
+            from_ = -10.0,
+            to = 10.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.1,
+            length=250,
+            command=self.updateCamSpeed,
+            label="Camera speed"
+        )
+        self.camSpeed.grid(column = 1, row = 18, sticky = tk.E)
+
+        self.separator2 = ttk.Separator(self.overviewTab, orient = tk.HORIZONTAL)
+        self.separator2.grid(column = 0, row = 19, columnspan = 2, sticky = tk.EW)
+
+        # sound labels
+        self.soundLabel = tk.Label(self.overviewTab, text = "Sound", font = self.bigfont)
+        self.soundLabel.grid(column = 0, row = 20, sticky = tk.NW)
+        self.soundLabelInfo = tk.Label(self.overviewTab, text = "Threshold settings: ")
+        self.soundLabelInfo.grid(column = 0, row = 21, sticky = tk.E)
+        self.soundXThreshold = tk.Scale(
+            self.overviewTab,
+            from_ = 0.0,
+            to = 100.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.25,
+            length=250,
+            command=self.updateSoundXThreshold,
+            label="Lo Threshold"
+        )
+        self.soundXThreshold.set(30)
+        self.soundXThreshold.grid(column = 1, row = 21, sticky = tk.E)
+        self.soundYThreshold = tk.Scale(
+            self.overviewTab,
+            from_ = 0.0,
+            to = 100.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.25,
+            length=250,
+            command=self.updateSoundYThreshold,
+            label="Mid Threshold"
+        )
+        self.soundYThreshold.set(1)
+        self.soundYThreshold.grid(column = 1, row = 22, sticky = tk.E)
+        self.soundZThreshold = tk.Scale(
+            self.overviewTab,
+            from_ = 0.0,
+            to = 100.0,
+            orient=tk.HORIZONTAL,
+            resolution = 0.25,
+            length=250,
+            command=self.updateSoundZThreshold,
+            label="Hi Threshold"
+        )
+        self.soundZThreshold.set(1)
+        self.soundZThreshold.grid(column = 1, row = 23, sticky = tk.E)
 
     def initVisualsFrame(self):
         self.visuals = {}
@@ -198,20 +332,21 @@ class GUI():
         self.visualScale.set(self.vrc.activeVisual.getScale())
         self.visualSpeed.set(self.vrc.activeVisual.getSpeed())
         self.visualTransparency.set(self.vrc.activeVisual.getAlpha())
-        self.updateActiveVisualOperationMap()
+        #self.updateActiveVisualOperationMap()
         self.activeVisualName = value
 
     def updateActiveVisualOperationMap(self):
-        self.visualLeft.config(text = "visual-left: "+str(self.op['visual-left']))
-        self.visualRight.config(text = "visual-right: "+str(self.op['visual-right']))
-        self.visualUp.config(text = "visual-up: "+str(self.op['visual-up']))
-        self.visualDown.config(text = "visual-down: "+str(self.op['visual-down']))
-        self.visualForward.config(text = "visual-forward: "+str(self.op['visual-forward']))
-        self.visualBackward.config(text = "visual-backward: "+str(self.op['visual-backward']))
-        self.visualRotateLeft.config(text = "visual-rotate-left: "+str(self.op['visual-rotate-left']))
-        self.visualRotateRight.config(text = "visual-rotate-right: "+str(self.op['visual-rotate-right']))
-        self.visualRotateUp.config(text = "visual-rotate-up: "+str(self.op['visual-rotate-up']))
-        self.visualRotateDown.config(text = "visual-rotate-down: "+str(self.op['visual-rotate-down']))
+        #self.visualLeft.config(text = "visual-left: "+str(self.op['visual-left']))
+        #self.visualRight.config(text = "visual-right: "+str(self.op['visual-right']))
+        #self.visualUp.config(text = "visual-up: "+str(self.op['visual-up']))
+        #self.visualDown.config(text = "visual-down: "+str(self.op['visual-down']))
+        #self.visualForward.config(text = "visual-forward: "+str(self.op['visual-forward']))
+        #self.visualBackward.config(text = "visual-backward: "+str(self.op['visual-backward']))
+        #self.visualRotateLeft.config(text = "visual-rotate-left: "+str(self.op['visual-rotate-left']))
+        #self.visualRotateRight.config(text = "visual-rotate-right: "+str(self.op['visual-rotate-right']))
+        #self.visualRotateUp.config(text = "visual-rotate-up: "+str(self.op['visual-rotate-up']))
+        #self.visualRotateDown.config(text = "visual-rotate-down: "+str(self.op['visual-rotate-down']))
+        pass
 
     def updateActiveVisualSpeed(self, event):
         self.vrc.activeVisual.setMovementSpeed(self.visualSpeed.get())
@@ -234,7 +369,7 @@ class GUI():
             self.visuals[self.activeVisualName]['x'].insert(0,x)
             self.visuals[self.activeVisualName]['y'].insert(0,y)
             self.visuals[self.activeVisualName]['z'].insert(0,z)
-            self.updateActiveVisualOperationMap()
+            #self.updateActiveVisualOperationMap()
 
     def initCameraFrame(self):
         # camera labels
@@ -286,6 +421,9 @@ class GUI():
         self.getCameraStatus()
         self.getGeneralStatus()
         self.getActiveVisualStatus()
+        self.visualScale.set(self.vrc.activeVisual.getScale())
+        self.visualSpeed.set(self.vrc.activeVisual.getSpeed())
+        self.visualTransparency.set(self.vrc.activeVisual.getAlpha())
 
 
     def setCameraValues(self, values):
@@ -296,20 +434,20 @@ class GUI():
         self.camPos.config(text = "x: "+str(x)+", y: "+str(y)+", z: "+str(z))
         h, p, r = map(lambda i: int(i), self.vrc.cam.getHpr())
         self.camHpr.config(text = "h: "+str(h)+", p: "+str(p)+", r: "+str(r))
-        self.camLeft.config(text="cam-left: "+str(self.vrc.op['cam-left']))
-        self.camRight.config(text="cam-right: "+str(self.vrc.op['cam-right']))
-        self.camUp.config(text="cam-up: "+str(self.vrc.op['cam-up']))
-        self.camDown.config(text="cam-down: "+str(self.vrc.op['cam-down']))
-        self.camForward.config(text="cam-forward: "+str(self.vrc.op['cam-forward']))
-        self.camBackward.config(text="cam-backward: "+str(self.vrc.op['cam-backward']))
-        self.camRotateLeft.config(text="cam-rotate-left: "+str(self.vrc.op['cam-rotate-left']))
-        self.camRotateRight.config(text="cam-rotate-right: "+str(self.vrc.op['cam-rotate-right']))
-        self.camRotateUp.config(text="cam-rotate-up: "+str(self.vrc.op['cam-rotate-up']))
-        self.camRotateDown.config(text="cam-rotate-down: "+str(self.vrc.op['cam-rotate-down']))
-        self.camReset.config(text="cam-reset: "+str(self.vrc.op['cam-reset']))
-        self.camSyncToggle.config(text="cam-sync-toggle: "+str(self.vrc.op['cam-sync-toggle']))
-        self.camSyncTo.config(text="cam-sync-to: "+str(self.vrc.op['cam-sync-to']))
-        self.camFixToggle.config(text="cam-fix-toggle: "+str(self.vrc.op['cam-fix-toggle']))
+        #self.camLeft.config(text="cam-left: "+str(self.vrc.op['cam-left']))
+        #self.camRight.config(text="cam-right: "+str(self.vrc.op['cam-right']))
+        #self.camUp.config(text="cam-up: "+str(self.vrc.op['cam-up']))
+        #self.camDown.config(text="cam-down: "+str(self.vrc.op['cam-down']))
+        #self.camForward.config(text="cam-forward: "+str(self.vrc.op['cam-forward']))
+        #self.camBackward.config(text="cam-backward: "+str(self.vrc.op['cam-backward']))
+        #self.camRotateLeft.config(text="cam-rotate-left: "+str(self.vrc.op['cam-rotate-left']))
+        #self.camRotateRight.config(text="cam-rotate-right: "+str(self.vrc.op['cam-rotate-right']))
+        #self.camRotateUp.config(text="cam-rotate-up: "+str(self.vrc.op['cam-rotate-up']))
+        #self.camRotateDown.config(text="cam-rotate-down: "+str(self.vrc.op['cam-rotate-down']))
+        #self.camReset.config(text="cam-reset: "+str(self.vrc.op['cam-reset']))
+        #self.camSyncToggle.config(text="cam-sync-toggle: "+str(self.vrc.op['cam-sync-toggle']))
+        #self.camSyncTo.config(text="cam-sync-to: "+str(self.vrc.op['cam-sync-to']))
+        #self.camFixToggle.config(text="cam-fix-toggle: "+str(self.vrc.op['cam-fix-toggle']))
 
     def getGeneralStatus(self):
         self.mode.config(text=self.vrc.mode+" mode")

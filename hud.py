@@ -39,10 +39,11 @@ class HUD:
 
     def updateHUD(self):
         self.mode.setText("mode: " + self.vrc.mode)
-        visualToggle = self.vrc.activeVisual.getVisualToggleInfo()
         x = y = z = 0
         h = p = r = 0
+        visualToggle = ""
         if self.vrc.activeVisual != None:
+            visualToggle = self.vrc.activeVisual.getVisualToggleInfo()
             x, y, z= self.vrc.activeVisual.getPos()
             h, p, r= self.vrc.activeVisual.getHpr()
         self.visual.setText(

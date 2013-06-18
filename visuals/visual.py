@@ -135,6 +135,9 @@ bla bla blab la... .
     def getHpr(self):
         return self.path.getHpr()
 
+    def setHpr(self, h, p, r):
+        self.path.setHpr((h, p, r))
+
     def setScale(self, value):
         self.scale = value
         print "set scale: ", value
@@ -145,6 +148,9 @@ bla bla blab la... .
 
     def getSpeed(self):
         return self.visualMovementSpeed
+
+    def setSpeed(self, value):
+        self.visualMovementSpeed = value
 
     def setAlpha(self, value):
         self.transparency = value

@@ -26,11 +26,15 @@ class VRC(ShowBase):
 
 
         # set up another camera to view stuff in other window
+        self.disableMouse()
         props = WindowProperties()
-        props.setSize(1280, 1024)
+        props.setSize(1600, 900)
         props.setUndecorated(True)
         props.setOrigin(0,0)
         self.otherWin = self.openWindow(props, makeCamera = 0)
+        props = WindowProperties()
+        props.setCursorHidden(True)
+        self.win.requestProperties(props)
         self.win.setClearColor((0,0,0,1))
         self.otherWin.setClearColor((0,0,0,1))
         self.gridCard = CardMaker("grid")
@@ -45,6 +49,10 @@ class VRC(ShowBase):
         self.grid.setScale(100)
         self.grid.setAlphaScale(0.15)
 
+        # mouse shit
+        # Set the current viewing target
+        self.heading = 180
+        self.pitch = 0
 
         # allocate visuals
         self.visuals = {}
@@ -148,6 +156,8 @@ class VRC(ShowBase):
         self.accept('tab', self.setOperation, ['tab'])
         self.accept('wheel_up', self.setOperation, ['wheel-up'])
         self.accept('wheel_down', self.setOperation, ['wheel-down'])
+        self.accept('mouse1', self.setOperation, ['mouse1'])
+        self.accept('mouse1-up', self.setOperation, ['mouse1-up'])
 
         # effect keys
         self.accept('1', self.setOperation, ['1'])
@@ -175,6 +185,7 @@ class VRC(ShowBase):
         self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
         self.taskMgr.add(self.executeOperation, 'action', sort = 1, priority = 2)
         self.taskMgr.add(self.spreadTheBeat, 'sound', sort = 1, priority = 1)
+        self.taskMgr.add(self.controlCamera, 'cam', sort = 1, priority = 1)
 
         # GUI
         #self.GUI = GUI(self)
@@ -202,7 +213,6 @@ class VRC(ShowBase):
             self.hud.clear()
         else:
             self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
-        print self.hudToggle
 
     def setOperation(self, key):
         if key == "v" : self.mode = 'visual'
@@ -212,8 +222,6 @@ class VRC(ShowBase):
         if self.mode == "cam" : self.setCamOperation(key)
         if self.mode == "light" : self.setLightOperation(key)
         if key == 'escape' : self.mode = 'escaped'
-        print self.visuals
-        print self.activeVisual
 
     def setMode(self, key):
         if key == "v" : self.mode = 'visual'
@@ -260,6 +268,10 @@ class VRC(ShowBase):
             self.camAfterMath()
         if key == "wheel-up" : self.increaseCamSpeed()
         if key == "wheel-down" : self.decreaseCamSpeed()
+        if key == 'mouse1' :
+            self.setOperationMap('cam-mouse-control', 1)
+            self.win.movePointer(0, 100, 100)
+        if key == 'mouse1-up' : self.setOperationMap('cam-mouse-control', 0)
 
     def setVisualOperation(self,key):
         if key == 'a' : self.setVisualOperationMap('visual-left', 1)
@@ -319,7 +331,6 @@ class VRC(ShowBase):
 
     def setVisualOperationMap(self, key, value):
         if self.activeVisual != None:
-            print "WATCHOUT!!! " + self.activeVisual.__class__.__name__
             self.activeVisual.setOp(key, value)
 
     def executeOperation(self, task):
@@ -413,44 +424,23 @@ class VRC(ShowBase):
                 self.cam.setPos(self.otherCam.getPos())
                 self.cam.setHpr(self.otherCam.getHpr())
 
+    def controlCamera(self, task):
+        # figure out how much the mouse has moved (in pixels)
+        if self.op['cam-mouse-control'] == 1:
+            md = self.win.getPointer(0)
+            x = md.getX()
+            y = md.getY()
+            self.heading = self.cam.getH()
+            self.pitch = self.cam.getP()
+            if self.win.movePointer(0, 100, 100):
+                self.heading = self.heading - (x - 100) * 0.1
+                self.pitch = self.pitch - (y - 100) * 0.1
+            self.cam.setHpr(self.heading,self.pitch, self.cam.getR())
+            self.camAfterMath()
+        return task.cont
+
     def setCamSpeed(self, value):
         self.camSpeed = value
-
-    def moveVisualLeft(self):
-        self.activeVisual.moveLeft()
-
-    def moveVisualRight(self):
-        self.activeVisual.moveRight()
-
-    def moveVisualUp(self):
-        self.activeVisual.moveUp()
-
-    def moveVisualDown(self):
-        self.activeVisual.moveDown()
-
-    def moveVisualForward(self):
-        self.activeVisual.moveForward()
-
-    def moveVisualBackward(self):
-        self.activeVisual.moveBackward()
-
-    def rotateVisualLeft(self):
-        self.activeVisual.rotateLeft()
-
-    def rotateVisualRight(self):
-        self.activeVisual.rotateRight()
-
-    def rotateVisualUp(self):
-        self.activeVisual.rotateUp()
-
-    def rotateVisualDown(self):
-        self.activeVisual.rotateDown()
-
-    def rollVisualLeft(self):
-        self.activeVisual.rollLeft()
-
-    def rollVisualRight(self):
-        self.activeVisual.rollRight()
 
     def displayInfo(self):
         self.hud.updateHUD()

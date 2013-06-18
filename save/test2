@@ -1,0 +1,1 @@
+[{"scale": 1.0, "name": "skull", "hpr": [0.0, 0.0, 0.0], "pos": [0.0, 0.0, 0.0], "alpha": 1.0, "type": "visual", "speed": 1.0}, {"scale": 1.0, "name": "cardquad", "hpr": [0.0, 0.0, 0.0], "pos": [0.0, 0.0, 0.0], "alpha": 1.0, "type": "visual", "speed": 1.0}, {"hpr": [0.0, 0.0, 0.0], "type": "cam", "pos": [0.0, -100.0, 0.0]}]

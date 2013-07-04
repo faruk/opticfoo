@@ -26,6 +26,14 @@ path in the 'Config.prc' file.
 If you installed panda3d on linux you should find your 'Config.prc'
 file in /etc.
 
+Add the following lines to Configure.prc and adapt to your installation
+path. The specified directories are the directories where you should
+hold all visual material for visuals if you are going to code your own.
+
+    model-path    /path/to/opticfoo/models
+    model-path    /path/to/opticfoo/textures
+
+
 Panda3d has an apt-repository and offers a debian .deb-package for
 smooth installation with debian based operating systems (see details
 on Panda3d download page
@@ -104,8 +112,23 @@ Basically you just put your stuff into the visual class with panda3d-functions
 positioning and stuff 
 (http://www.panda3d.org/manual/index.php/Common_State_Changes).
 
+To load your material into a visual you need to call the visuals loader object
+and specify the name of the resource to load. Watch out with multiple identical
+file names across your model paths.
+
+    class Testvisual(visual): #derive from visual class all needed initialisation
+        def setup(self):
+            self.something1 = self.loader.loadModel("3dmodelname")
+            ...
+
+        def performToBeat(self):
+            ...
+
+        def effect1(self): # for effect called by key "1"
+            ...
+
+        ...
+
 After you have saved your custom visual class you need to import it in the
 visual-factory class and initialize it there. See already added example
 visuals in ./visuals/visuals.py .
-
-

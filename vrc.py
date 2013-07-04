@@ -1,3 +1,27 @@
+'''
+Author: Jan Swoboda
+Date: April - July 2013
+
+Copyright 2013
+
+LEGAL INFO:
+
+This file is part of opticfoo (virtual room VJ concept - VRC in short).
+
+Opticfoo is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Opticfoo is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker, loadPrcFileData, TransparencyAttrib, BitMask32
@@ -13,7 +37,7 @@ loadPrcFile('Config.prc')
 #loadPrcFileData('', 'undecorated t')
 
 class VRC(ShowBase):
-    def __init__(self):
+    def __init__(self, x=800, y=600):
         ShowBase.__init__(self)
         self.exitFunc = self.exit
         # enable particle system for particles (uncomment following line)
@@ -31,7 +55,7 @@ class VRC(ShowBase):
         # set up another camera to view stuff in other window
         self.disableMouse()
         props = WindowProperties()
-        props.setSize(1600, 900)
+        props.setSize(x, y)
         props.setUndecorated(True)
         props.setOrigin(0,0)
         self.otherWin = self.openWindow(props, makeCamera = 0)

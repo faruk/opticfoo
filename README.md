@@ -44,7 +44,7 @@ Run VRC
 
 execute main.py file with python from command line:
 
-    user@computer:/path/vrc$ python main.py
+    user@computer:/path/opticfoo$ python main.py
 
 you can also create a shortcut with an executable script that does
 this for you.

@@ -3,19 +3,22 @@ opticfoo
 
 This is a program about VJing in 3d inside a game engine.
 
+This Software is released under the terms of GPL version 3.
+See LICENSE.txt for legal information.
+
 About
 -----
 
-This is the project repository for my bachelor thesis. Its about a 
-VJing concept with heavy use of keyboard for performance. You'll also 
-need mouse to use the GUI. Basically it is a virtual 3d room where you 
+This is the project repository for my bachelor thesis. Its about a
+VJing concept with heavy use of keyboard for performance. You'll also
+need mouse to use the GUI. Basically it is a virtual 3d room where you
 can place visuals and watch them.
 
 
 Installation
 ------------
 
-In order to run this code you will need 
+In order to run this code you will need
 
     * panda3d (v1.8) (see manual on http://panda3d.org for installation
       instruction)
@@ -90,7 +93,7 @@ Keyboard layout for special keys, camera mode:
 
 Keyboard layout for special keys, visual mode:
 
-    * "f"           - enable scale value access for mouse wheel on 
+    * "f"           - enable scale value access for mouse wheel on
                       active visual, disable any other wheel access
     * "g"           - enable speed value access for mouse wheel on
                       active visual, disable any other access
@@ -109,7 +112,7 @@ If you are a programmer and you want to write some visuals, see the code in
 the ./visuals directory for some inspiration of possibilities.
 Basically you just put your stuff into the visual class with panda3d-functions
 (http://panda3d.org/manual/). see panda3d's common state changes for visual
-positioning and stuff 
+positioning and stuff
 (http://www.panda3d.org/manual/index.php/Common_State_Changes).
 
 To load your material into a visual you need to call the visuals loader object

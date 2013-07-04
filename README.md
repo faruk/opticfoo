@@ -4,7 +4,7 @@ opticfoo
 This is a program about VJing in 3d inside a game engine.
 
 This Software is released under the terms of GPL version 3.
-See LICENSE.txt for legal information.
+See LICENSE.txt for legal information or go to http://www.gnu.org/licenses/ .
 
 About
 -----

@@ -1,4 +1,5 @@
 import Tkinter as tk
+import tkMessageBox
 import tkFont
 import ttk
 import json
@@ -8,10 +9,11 @@ import os
 class GUI():
     def __init__(self, vrc
         ):
-        self.op = operationMap
         self.bigfont = tkFont.Font(family = 'Courier New', size = 16)
 
         # operationmap preparation for presentation
+        # obsolete since not interesting with reduced gui in v2
+        self.op = operationMap
         self.activeOps = {}
         self.visualOps = {}
         for v in self.op:
@@ -20,34 +22,36 @@ class GUI():
         for c in self.op:
             if c.startswith("cam-"): self.camOps[c] = self.op[c]
 
+        # reference to vrc object
         self.vrc = vrc
 
+        # get tk root from vrc
         self.root = self.vrc.tkRoot
+        self.root.protocol('WM_DELETE_WINDOW', self.quitCallback)
 
+        # initialize mode label
         self.mode = tk.Label(self.root, text = self.vrc.mode+" mode", font = self.bigfont)
         self.mode.grid(row = 0, column =0, sticky = tk.W, columnspan = 2)
 
+        # setup tabs
         self.tabs = ttk.Notebook()
         self.visualsTab = tk.Frame()
         self.overviewTab = tk.Frame()
         self.tabs.grid(row = 2, column = 0, columnspan = 2)
-
         self.tabs.add(self.visualsTab)
         self.tabs.tab(0, text="Visuals")
         self.tabs.add(self.overviewTab)
         self.tabs.tab(1, text="Overview")
 
-
+        # init gui elements inside tabs
         self.initVisualsFrame()
-
         self.initOverviewTab()
 
+        # start gui
         self.vrc.spawnTkLoop()
 
-
-        # general labels
-
     def initOverviewTab(self):
+        # active visuals list
         self.activeVisualName = self.visuals.keys()[0]
         self.activeVisualsListbox = tk.Listbox(self.overviewTab)
         self.activeVisualsListbox.bind('<<ListboxSelect>>', self.updateActiveVisual)
@@ -128,6 +132,7 @@ class GUI():
             label="Camera speed"
         )
         self.camSpeed.grid(column = 1, row = 18, sticky = tk.E)
+        self.camSpeed.set(1)
 
         self.separator2 = ttk.Separator(self.overviewTab, orient = tk.HORIZONTAL)
         self.separator2.grid(column = 0, row = 19, columnspan = 2, sticky = tk.EW)
@@ -292,7 +297,6 @@ class GUI():
             self.visualSpeed.set(self.vrc.activeVisual.getSpeed())
             self.visualTransparency.set(self.vrc.activeVisual.getAlpha())
 
-
     def setCameraValues(self, values):
         pass
 
@@ -309,44 +313,6 @@ class GUI():
         print self.camSpeed.get(), event
         self.vrc.setCamSpeed(self.camSpeed.get())
 
-    def initGeneralFrame(self):
-        self.soundXThreshold = tk.Scale(
-            self.generalTab,
-            from_ = 0.0,
-            to = 100.0,
-            orient=tk.HORIZONTAL,
-            resolution = 0.25,
-            length=400,
-            command=self.updateSoundXThreshold,
-            label="Lo Threshold"
-        )
-        self.soundXThreshold.set(30)
-        self.soundXThreshold.grid(column = 0, row = 1, sticky = tk.E)
-        self.soundYThreshold = tk.Scale(
-            self.generalTab,
-            from_ = 0.0,
-            to = 100.0,
-            orient=tk.HORIZONTAL,
-            resolution = 0.25,
-            length=400,
-            command=self.updateSoundYThreshold,
-            label="Mid Threshold"
-        )
-        self.soundYThreshold.set(1)
-        self.soundYThreshold.grid(column = 0, row = 2, sticky = tk.E)
-        self.soundZThreshold = tk.Scale(
-            self.generalTab,
-            from_ = 0.0,
-            to = 100.0,
-            orient=tk.HORIZONTAL,
-            resolution = 0.25,
-            length=400,
-            command=self.updateSoundZThreshold,
-            label="Hi Threshold"
-        )
-        self.soundZThreshold.set(1)
-        self.soundZThreshold.grid(column = 0, row = 3, sticky = tk.E)
-
     def updateSoundXThreshold(self, event):
         self.vrc.snd.setXThreshold(self.soundXThreshold.get())
 
@@ -356,6 +322,7 @@ class GUI():
     def updateSoundZThreshold(self, event):
         self.vrc.snd.setZThreshold(self.soundZThreshold.get())
 
+    # save scene in json file
     def saveScene(self):
         vrc = self.vrc
         name = self.saveName.get()
@@ -364,8 +331,8 @@ class GUI():
             file = open('save/' + name, 'w')
             scene = []
 
+            # gather info
             for v in visuals:
-                
                 visual = visuals[v]
                 x, y, z = visual.getPos()
                 pos = (x, y, z)
@@ -392,6 +359,7 @@ class GUI():
                 'hpr': hpr
             }
             scene.append(cam)
+            # write scene as json string in order to read/load again
             string = json.dumps(scene)
             file.write(string)
             file.close()
@@ -406,6 +374,7 @@ class GUI():
     def filterCam(self, x):
         return x['type'] == 'cam'
 
+    # load scene from json files in saves directory
     def loadScene(self):
         scene = self.saves.curselection()[0]
         scene = self.saves.get(scene)
@@ -435,3 +404,7 @@ class GUI():
         self.saves.delete(sceneID)
         os.remove('save/'+scene)
 
+    def quitCallback(self):
+        if tkMessageBox.askokcancel("Quit", "Do you really want to quit?"):
+            self.root.destroy()
+            self.vrc.exit()

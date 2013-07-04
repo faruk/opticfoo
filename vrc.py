@@ -3,9 +3,11 @@ from direct.actor.Actor import Actor
 from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProperties, NodePath, loadPrcFile, CardMaker, loadPrcFileData, TransparencyAttrib, BitMask32
 from operationmap import operationMap
 from hud import HUD
+from gui import GUI
 #from gui import GUI
 from soundanalyzer import SoundAnalyzer
 from visuals.visuals import VisualFactory
+import sys
 
 loadPrcFile('Config.prc')
 #loadPrcFileData('', 'undecorated t')
@@ -13,7 +15,9 @@ loadPrcFile('Config.prc')
 class VRC(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-#        self.base.enableParticles()
+        self.exitFunc = self.exit
+        # enable particle system for particles (uncomment following line)
+        #self.base.enableParticles()
 
         # load operation map which holds state of operations
         self.operationmap = operationMap
@@ -23,7 +27,6 @@ class VRC(ShowBase):
         # sound analyzer
         self.snd = SoundAnalyzer()
         self.snd.start()
-
 
         # set up another camera to view stuff in other window
         self.disableMouse()
@@ -49,7 +52,7 @@ class VRC(ShowBase):
         self.grid.setScale(100)
         self.grid.setAlphaScale(0.15)
 
-        # mouse shit
+        # initial mouse movement variables
         # Set the current viewing target
         self.heading = 180
         self.pitch = 0
@@ -62,23 +65,33 @@ class VRC(ShowBase):
             self.snd,
             [self.win, self.otherWin]
         )
-        #self.activeVisual = visual(loader, self.render, self.snd)
 
+        # initialize content in the vrc space and link placeholder visual
         # refactor this
         self.activeVisual = self.factory.visuals['placeholder']
         self.visuals['placeholder'] = self.activeVisual
+
+        # setup cams
         self.otherCam = self.makeCamera(self.otherWin)
         self.camSpeed = 1.0
         self.cam.setPos(0,-100,0)
-        self.camAfterMath()
+        self.camAfterMath() # cam synchronisation
 
+        # setup preview cam to see orientation grid
         self.cam.node().setCameraMask(BitMask32.bit(0))
         self.otherCam.node().setCameraMask(BitMask32.bit(1))
         self.grid.hide(BitMask32.bit(1))
 
+        # ingame status
         self.hud = HUD(self)
         self.hudToggle = 1
         self.setFrameRateMeter(True)
+
+        # GUI
+        self.startTk()
+        self.gui = GUI(self)
+
+        # initialize keyboard event system for usage evaluation
 
         # movement keys
         self.accept('a', self.setOperation, ['a'])
@@ -182,30 +195,36 @@ class VRC(ShowBase):
         self.accept('0-up', self.setOperation, ['0-up'])
         self.accept('`', self.toggleHud)
 
+        # setup task manager
         self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
+        self.taskMgr.doMethodLater(0.5, self.updateGui, 'gui')
         self.taskMgr.add(self.executeOperation, 'action', sort = 1, priority = 2)
         self.taskMgr.add(self.spreadTheBeat, 'sound', sort = 1, priority = 1)
         self.taskMgr.add(self.controlCamera, 'cam', sort = 1, priority = 1)
 
-        # GUI
-        #self.GUI = GUI(self)
-        self.startTk()
+    # exit properly on window close
+    def exit(self):
+        print "exiting VRC program, cleaning up threads"
+        self.snd.stop()
+        sys.exit()
 
-    #def destroy(self):
-    #    self.snd.stop()
-
+    # call function getbeat on visuals so every active visual gets
+    # called to interact with sound.
     def spreadTheBeat(self, task):
         map(lambda x: x.getBeat(), self.visuals.values())
         return task.cont
 
-    def setSoundScale(self, task):
-        self.activeVisual.scaleToBeat()
-        return task.cont
+    # ubdate gui values cantinuously
+    def updateGui(self, task):
+        self.gui.update()
+        return task.again
 
+    # update operation head up display
     def displayOperationHud(self, task):
         self.hud.updateHUD()
         return task.again
 
+    # toggle HUD visibility
     def toggleHud(self):
         self.hudToggle = -self.hudToggle
         if self.hudToggle < 0:
@@ -214,6 +233,7 @@ class VRC(ShowBase):
         else:
             self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
 
+    # gets key and passes it to active mode
     def setOperation(self, key):
         if key == "v" : self.mode = 'visual'
         if key == "c" : self.mode = 'cam'
@@ -223,6 +243,7 @@ class VRC(ShowBase):
         if self.mode == "light" : self.setLightOperation(key)
         if key == 'escape' : self.mode = 'escaped'
 
+    # keys for setting mode if escaped
     def setMode(self, key):
         if key == "v" : self.mode = 'visual'
         if key == "c" : self.mode = 'cam'
@@ -326,9 +347,11 @@ class VRC(ShowBase):
         if key == 't': self.activeVisual.setTransparencyToggle()
         if key == 'r': self.activeVisual.resetOperationMap()
 
+    # set vrc operation map
     def setOperationMap(self, key, value):
         self.op[key] = value
 
+    # gets operation key and value to set in active visuals operation map
     def setVisualOperationMap(self, key, value):
         if self.activeVisual != None:
             self.activeVisual.setOp(key, value)
@@ -424,6 +447,7 @@ class VRC(ShowBase):
                 self.cam.setPos(self.otherCam.getPos())
                 self.cam.setHpr(self.otherCam.getHpr())
 
+    # camera mouse control
     def controlCamera(self, task):
         # figure out how much the mouse has moved (in pixels)
         if self.op['cam-mouse-control'] == 1:

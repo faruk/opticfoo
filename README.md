@@ -17,13 +17,95 @@ Installation
 
 In order to run this code you will need 
 
-    * panda3d (v1.8)
-    * several python libs like alsaaudio, audioop, fftw3, numpy
+    * panda3d (v1.8) (see manual on http://panda3d.org for installation
+      instruction)
+    * several python libs like alsaaudio, audioop, fftw3, numpy, ttk
 
-For the models you'll need to setup the model's path in the 'Config.prc' 
-file.
+For the models and videos and textures you'll need to setup the model's
+path in the 'Config.prc' file.
+If you installed panda3d on linux you should find your 'Config.prc'
+file in /etc.
+
+Panda3d has an apt-repository and offers a debian .deb-package for
+smooth installation with debian based operating systems (see details
+on Panda3d download page
+http://www.panda3d.org/download.php?runtime&platform=ubuntu )
+
+Run VRC
+-------
+
+execute main.py file with python from command line:
+
+    user@computer:/path/vrc$ python main.py
+
+you can also create a shortcut with an executable script that does
+this for you.
 
 Usage
 -----
 
-to figure out...
+In order to perform a VJ show you need to animate your visuals and
+camera, adjust transparency, speeds and and.
+You should defenetely hold some general movement keys pressed and
+switch to escaped mode to see how you can store operations until
+the key-up event occurs. This allows you to animate things and let
+them be animated.
+You can also access the last visual again with the stored keyboard
+input and activate toggles for transparency, scale and speed.
+The speed value can also be negative which allows you to invert
+animation.
+
+Best thing is to load some visuals, make sure mic is activated and
+calibrated and try and error.
+
+Keyboard layout for Performing, general keys:
+
+    * "wasd"        - move forward/backward/left/right
+    * "shift/space" - move up/down
+    * "hl"          - head left/right
+    * "jk"          - pitch down/up
+    * "ui"          - rotate counter clockwise/clockwise
+    * "esc"         - switch to escaped mode
+    * "c"           - switch to camera mode
+    * "v"           - switch to visual mode
+
+Keyboard layout for special keys, camera mode:
+
+    * "mouse wheel" - camera speed
+    * "f"           - synchronize position of cams depeding on 'sync-to'
+                      variable in camera operation map
+    * "g"           - toggle camera fixation on visual on/off
+    * "t"           - toggle 'sync-to' variable to synchronize
+                      cam/othercam or vice versa
+    * "left mouse + mouse movement" - rotate cam heading/pitch with mouse
+                      when not fixed on visual (see "g")
+
+Keyboard layout for special keys, visual mode:
+
+    * "f"           - enable scale value access for mouse wheel on 
+                      active visual, disable any other wheel access
+    * "g"           - enable speed value access for mouse wheel on
+                      active visual, disable any other access
+    * "t"           - enable transparency value access for mouse wheel on
+                      active visual, disable any other access
+    * "1234567890"  - programmable effect keys to call effect1..0 function
+                      on active visual
+    * "tab"         - switch to next visual in active visual list
+    * "r"           - reset visual operation to stop visual movement and
+                      sets visual speed to 1
+
+Write Visuals
+-------------
+
+If you are a programmer and you want to write some visuals, see the code in
+the ./visuals directory for some inspiration of possibilities.
+Basically you just put your stuff into the visual class with panda3d-functions
+(http://panda3d.org/manual/). see panda3d's common state changes for visual
+positioning and stuff 
+(http://www.panda3d.org/manual/index.php/Common_State_Changes).
+
+After you have saved your custom visual class you need to import it in the
+visual-factory class and initialize it there. See already added example
+visuals in ./visuals/visuals.py .
+
+

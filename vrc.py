@@ -37,11 +37,11 @@ loadPrcFile('Config.prc')
 #loadPrcFileData('', 'undecorated t')
 
 class VRC(ShowBase):
-    def __init__(self, x=800, y=600):
+    def __init__(self, x=1600, y=900):
         ShowBase.__init__(self)
         self.exitFunc = self.exit
         # enable particle system for particles (uncomment following line)
-        #self.base.enableParticles()
+        self.enableParticles()
 
         # load operation map which holds state of operations
         self.operationmap = operationMap
@@ -344,25 +344,45 @@ class VRC(ShowBase):
         if key == 'shift' : self.setVisualOperationMap('visual-backward', 1)
         if key == 'shift-up' : self.setVisualOperationMap('visual-backward', 0)
         if key == '1' : self.setVisualOperationMap('visual-effect1', 1)
-        if key == '1-up' : self.setVisualOperationMap('visual-effect1', 0)
+        if key == '1-up' : 
+            self.setVisualOperationMap('visual-effect1', 0)
+            self.setVisualKeyUpEvent('visual-effect1')
         if key == '2' : self.setVisualOperationMap('visual-effect2', 1)
-        if key == '2-up' : self.setVisualOperationMap('visual-effect2', 0)
+        if key == '2-up' :
+            self.setVisualOperationMap('visual-effect2', 0)
+            self.setVisualKeyUpEvent('visual-effect2')
         if key == '3' : self.setVisualOperationMap('visual-effect3', 1)
-        if key == '3-up' : self.setVisualOperationMap('visual-effect3', 0)
+        if key == '3-up' :
+            self.setVisualOperationMap('visual-effect3', 0)
+            self.setVisualKeyUpEvent('visual-effect3')
         if key == '4' : self.setVisualOperationMap('visual-effect4', 1)
-        if key == '4-up' : self.setVisualOperationMap('visual-effect4', 0)
+        if key == '4-up' :
+            self.setVisualOperationMap('visual-effect4', 0)
+            self.setVisualKeyUpEvent('visual-effect4')
         if key == '5' : self.setVisualOperationMap('visual-effect5', 1)
-        if key == '5-up' : self.setVisualOperationMap('visual-effect5', 0)
+        if key == '5-up' :
+            self.setVisualOperationMap('visual-effect5', 0)
+            self.setVisualKeyUpEvent('visual-effect5')
         if key == '6' : self.setVisualOperationMap('visual-effect6', 1)
-        if key == '6-up' : self.setVisualOperationMap('visual-effect6', 0)
+        if key == '6-up' :
+            self.setVisualOperationMap('visual-effect6', 0)
+            self.setVisualKeyUpEvent('visual-effect6')
         if key == '7' : self.setVisualOperationMap('visual-effect7', 1)
-        if key == '7-up' : self.setVisualOperationMap('visual-effect7', 0)
+        if key == '7-up' :
+            self.setVisualOperationMap('visual-effect7', 0)
+            self.setVisualKeyUpEvent('visual-effect7')
         if key == '8' : self.setVisualOperationMap('visual-effect8', 1)
-        if key == '8-up' : self.setVisualOperationMap('visual-effect8', 0)
+        if key == '8-up' :
+            self.setVisualOperationMap('visual-effect8', 0)
+            self.setVisualKeyUpEvent('visual-effect8')
         if key == '9' : self.setVisualOperationMap('visual-effect9', 1)
-        if key == '9-up' : self.setVisualOperationMap('visual-effect9', 0)
+        if key == '9-up' :
+            self.setVisualOperationMap('visual-effect9', 0)
+            self.setVisualKeyUpEvent('visual-effect9')
         if key == '0' : self.setVisualOperationMap('visual-effect0', 1)
-        if key == '0-up' : self.setVisualOperationMap('visual-effect0', 0)
+        if key == '0-up' :
+            self.setVisualOperationMap('visual-effect0', 0)
+            self.setVisualKeyUpEvent('visual-effect0')
         if key == 'tab' : self.nextVisual()
         if key == 'wheel-up' : self.activeVisual.increaseValue()
         if key == 'wheel-down' : self.activeVisual.decreaseValue()
@@ -379,6 +399,10 @@ class VRC(ShowBase):
     def setVisualOperationMap(self, key, value):
         if self.activeVisual != None:
             self.activeVisual.setOp(key, value)
+
+    def setVisualKeyUpEvent(self, key):
+        if self.activeVisual != None:
+            self.activeVisual.keyUpEvent(key)
 
     def executeOperation(self, task):
         # camera operations

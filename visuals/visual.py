@@ -139,6 +139,36 @@ bla bla blab la... .
     def effect9(self):
         pass
 
+    def effect0up(self):
+        pass
+
+    def effect1up(self):
+        pass
+
+    def effect2up(self):
+        pass
+
+    def effect3up(self):
+        pass
+
+    def effect4up(self):
+        pass
+
+    def effect5up(self):
+        pass
+
+    def effect6up(self):
+        pass
+
+    def effect7up(self):
+        pass
+
+    def effect8up(self):
+        pass
+
+    def effect9up(self):
+        pass
+
     def scaleToBeat(self):
         self.path.setScale(self.scale + ( 1*(self.sndX/100)))
 
@@ -211,11 +241,17 @@ bla bla blab la... .
         if self.op['visual-effect8'] == 1: self.effect8()
         if self.op['visual-effect9'] == 1: self.effect9()
 
-    #def updateOperationMap(self, op):
-    #    self.op = dict(op)
-
-    #def getOperationMap(self):
-    #    return self.op
+    def keyUpEvent(self, key):
+        if key == 'visual-effect0': self.effect0up()
+        if key == 'visual-effect1': self.effect1up()
+        if key == 'visual-effect2': self.effect2up()
+        if key == 'visual-effect3': self.effect3up()
+        if key == 'visual-effect4': self.effect4up()
+        if key == 'visual-effect5': self.effect5up()
+        if key == 'visual-effect6': self.effect6up()
+        if key == 'visual-effect7': self.effect7up()
+        if key == 'visual-effect8': self.effect8up()
+        if key == 'visual-effect9': self.effect9up()
 
     def getSpecialStatus(self):
         return self.specialStatusString

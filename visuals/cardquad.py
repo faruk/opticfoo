@@ -33,3 +33,8 @@ class CardQuad(visual):
         self.path.setTransparency(TransparencyAttrib.MAlpha, 1)
         self.path.setTwoSided(1)
 
+    def performBeat(self):
+        x, y, z = self.snd.getBeat()
+        self.path.setSx(self.scale*(1+x*0.01))
+        self.path.setSy(self.scale*(1+y*0.1))
+        self.path.setSz(self.scale*(1+z*3))

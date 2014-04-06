@@ -33,7 +33,20 @@ from skaterampone import SkateRampOne
 from vrclight import VRCLight
 from skull import Skull
 from p90 import P90
-from stars import Stars
+from technics import Technics
+from skybox import Skybox
+from skycube import SkyCube
+from rotatingcards import RotatingCards
+from spaceinvader import SpaceInvader
+from mask import Mask
+from feelingfeels import FeelingFeels
+from technix import Technix
+from intro import Intro
+from megabox import MegaBox
+from videodeck import VideoDeck
+from cards import Cards
+from sky import Sky
+#from stars import Stars
 
 class VisualFactory:
     def __init__(self, loader, render, snd, windows):
@@ -47,14 +60,26 @@ class VisualFactory:
     def spawnVisuals(self):
         #self.visuals['firsttry'] = FirstTry(self.loader, self.render, self.snd)
         self.visuals['placeholder'] = visual(self.loader, self.render, self.snd)
-        self.visuals['backgroundbeat'] = BackgroundBeat(self.loader, self.render, self.snd)
-        self.visuals['backgroundbeat1'] = BackgroundBeat(self.loader, self.render, self.snd)
-        self.visuals['cardquad'] = CardQuad(self.loader, self.render, self.snd)
+        #self.visuals['cardquad'] = CardQuad(self.loader, self.render, self.snd)
         self.visuals['enterprise'] = Enterprise(self.loader, self.render, self.snd)
-        self.visuals['enterprise'] = Enterprise(self.loader, self.render, self.snd)
+        #self.visuals['enterprise'] = Enterprise(self.loader, self.render, self.snd)
         #self.visuals['texturecard'] = TextureCard(self.loader, self.render, self.snd)
         #self.visuals['skatesculp1'] = SkateRampOne(self.loader, self.render, self.snd)
         self.visuals['vrclight'] = VRCLight(self.loader, self.render, self.snd) # experimental use of light and shadows
         self.visuals['skull'] = Skull(self.loader, self.render, self.snd)
         self.visuals['P90'] = P90(self.loader, self.render, self.snd)
-        self.visuals['stars'] = Stars(self.loader, self.render, self.snd)
+#        self.visuals['stars'] = Stars(self.loader, self.render, self.snd)
+        #self.visuals['technics'] = Technics(self.loader, self.render, self.snd)
+        self.visuals['skybox'] = Skybox(self.loader, self.render, self.snd)
+        self.visuals['skycube'] = SkyCube(self.loader, self.render, self.snd)
+        self.visuals['Cubes'] = RotatingCards(self.loader, self.render, self.snd)
+        self.visuals['Space Invader'] = SpaceInvader(self.loader, self.render, self.snd)
+        self.visuals['mask'] = Mask(self.loader, self.render, self.snd)
+        self.visuals['feelingfeels'] = FeelingFeels(self.loader, self.render, self.snd)
+        self.visuals['technix'] = Technix(self.loader, self.render, self.snd)
+        self.visuals['Intro'] = Intro(self.loader, self.render, self.snd)
+        self.visuals['MegaBox'] = MegaBox(self.loader, self.render, self.snd)
+        self.visuals['VideoDeck'] = VideoDeck(self.loader, self.render, self.snd)
+        self.visuals['Cards'] = Cards(self.loader, self.render, self.snd)
+        self.visuals['Planets'] = Sky(self.loader, self.render, self.snd)
+

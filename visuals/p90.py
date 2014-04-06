@@ -46,5 +46,8 @@ class P90(visual):
     def effect4(self):
         self.yFunc = self.scaleFunc
 
+    def effect5(self):
+        pass
+
     def nothing(self):
         pass

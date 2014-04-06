@@ -26,11 +26,11 @@ from vrc import VRC
 import sys
 
 if __name__ == "__main__":
-    x = 800
-    y = 600
+    x = 1600 
+    y = 900
     try:
-        x = sys.argv[1]
-        y = sys.argv[2]
+        x = int(sys.argv[1])
+        y = int(sys.argv[2])
     except IndexError:
         print "running with standard 800x600 window for output"
         print 'use "python main.py <xValue> <yValue>" to adjust output window size'

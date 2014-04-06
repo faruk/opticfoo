@@ -66,6 +66,7 @@ class SoundAnalyzer(threading.Thread):
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
+        self.m = 0.0
 
         # threshold values set in gui for comperation sensitivity
         # use in visual beat functions

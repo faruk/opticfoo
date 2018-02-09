@@ -1,5 +1,6 @@
 from panda3d.core import CardMaker, MovieTexture, NodePath, TextureStage, TransparencyAttrib
 from panda3d.core import AmbientLight, Vec3, Vec4, Point3, LineSegs
+from panda3d.core import Shader
 from direct.interval.LerpInterval import LerpColorInterval, LerpScaleInterval
 from direct.interval.IntervalGlobal import Sequence, LerpFunc, Parallel
 import random
@@ -13,11 +14,13 @@ class Enterprise(visual):
 
         self.enterprise = self.loader.loadModel("ent")
         self.enterprise.reparentTo(self.path)
-#        self.path.setRenderModeWireframe()
 
         self.enterprise.setPos((-25,0,0))
         self.enterprise.setH(180)
         self.enterprise.setP(90)
+
+        #self.enterprise = self.loader.loadModel("enterprise")
+        #self.enterprise.setPos((-9540,+20200,8200))
 
         self.faserbank = NodePath("faserbank")
         self.faserbank.reparentTo(self.path)
@@ -34,11 +37,17 @@ class Enterprise(visual):
         self.scaleLerp1 = LerpScaleInterval(self.enterprise, 1, self.scale, self.scale + self.scale/10)
         self.faserLerp = LerpFunc(self.faserTransparency, fromData = 1, toData = 0, duration = 2, name = "faser")
 
-        self.midFunc = self.funcRedWhite
+        self.midFunc = self.nothing #self.funcRedWhite
         #self.loMidFunc = self.funcScaleRedWhite
-        self.loFunc = self.funcScale
+        self.loFunc = self.nothing
         self.midFunctions = {}
         self.hiFunctions = {}
+        self.wireframe = False
+
+        self.on = True
+
+        #self.myshader = Shader.load("shader/XBlurShader.sha")
+        #self.enterprise.setShader(self.myshader)
 
     def performBeat(self):
         if self.sndY > self.snd.yThreshold:
@@ -62,32 +71,55 @@ class Enterprise(visual):
     def funcScale(self):
         Sequence(self.scaleLerp0, self.scaleLerp1).start()
 
-    def effect1(self):
-        self.path.setRenderModeFilled()
+    def effect1up(self):
+        if self.wireframe:
+            self.path.setRenderModeFilled()
+            self.wireframe = not self.wireframe
+        else:
+            self.path.setRenderModeWireframe()
+            self.wireframe = not self.wireframe
 
     def effect2(self):
-        self.path.setRenderModeWireframe()
+        if self.sndX > self.snd.xThreshold:
+            self.enterprise.setColor(random.randint(0,100)/100.0,random.randint(0,100)/100.0,random.randint(0,100)/100.0, 1)
 
-    def effect3(self):
-        self.loFunc = self.nothing
+    def effect2up(self):
+        self.enterprise.setColor(1,1,1,1)
 
-    def effect4(self):
-        self.loFunc = self.funcScale
+    def effect3up(self):
+        if self.loFunc == self.funcScale:
+            self.loFunc = self.nothing
+        else:
+            self.loFunc = self.funcScale
+
+    def effect4up(self):
+        self.visualMovementSpeed = self.visualMovementSpeed * -1
+
+    def funcWireFilled(self):
+        if self.wireframe:
+            self.path.setRenderModeFilled()
+            self.wireframe = not self.wireframe
+        else:
+            self.path.setRenderModeWireframe()
+            self.wireframe = not self.wireframe
 
     def effect5(self):
-        self.midFunc = self.funcRedWhite
+        self.midFunc = self.funcWireFilled
+
+    def effect5up(self):
+        self.midFunc = self.nothing()
+
+    def effect6(self):
+        if self.sndX > self.snd.xThreshold:
+            if self.on:
+                self.enterprise.detachNode()
+                self.on = False
+            else:
+                self.enterprise.reparentTo(self.path)
+                self.on = True
 
     def effect6up(self):
-        if 'warp' in self.hiFunctions:
-            self.hiFunctions.pop("warp")
-            self.enterprise.clearTexture()
-        else:
-            self.enterprise.setTexture(self.noise)
-            self.hiFunctions['warp'] = self.warp
-
-    def warp(self):
-        print self.sndZ
-        self.path.setSy(self.scale+self.sndZ*1000000)
+        self.enterprise.reparentTo(self.path)
 
     def effect8up(self):
         if self.fasershots > 1:

@@ -1,0 +1,8 @@
+textures/
+*.pyc
+save/
+doc/
+pitivi/
+*.swp
+*.swo
+*.backup

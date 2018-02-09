@@ -40,6 +40,46 @@ class visual:
         self.visualMovementSpeedToggle = False
         self.scaleToggle = False
 
+        self.red = 0.0
+        self.green = 0.0
+        self.blue = 0.0
+        self.alpha = 0.0
+
+        # hold state of midi
+        self.midi_channel = 0
+        self.midi_control = 0
+        self.midi_value = 0
+        self.midi_note = 0
+        self.midi_velocity = 0
+        self.midi_time = 0
+        self.midi_velocity_previous = 0
+
+        self.midi_control_functions = []
+        self.midi_note_on_functions = []
+        self.midi_note_off_functions = []
+
+        # init lists with a function that does nothing
+        for i in range(0,200):
+            self.midi_control_functions.append(self.empty_midi_func)
+            self.midi_note_on_functions.append(self.empty_midi_func)
+            self.midi_note_off_functions.append(self.empty_midi_func)
+
+        # init default functions here
+        self.midi_control_functions[10] = self.midi_scale
+        self.midi_control_functions[77] = self.midi_speed
+        self.midi_control_functions[7] = self.midi_speed
+        self.midi_control_functions[78] = self.midi_transparency
+        self.midi_control_functions[84] = self.midi_transparency
+        self.midi_control_functions[75] = self.midi_color_red
+        self.midi_control_functions[76] = self.midi_color_green
+        self.midi_control_functions[92] = self.midi_color_blue
+        self.midi_control_functions[95] = self.midi_color_alpha
+        
+        self.midi_note_on_functions[120] = self.midi_strobo_alpha
+        self.midi_note_off_functions[120] = self.midi_strobo_alpha
+        self.midi_note_on_functions[119] = self.midi_negative_strobo_alpha_0
+        self.midi_note_off_functions[119] = self.midi_negative_strobo_alpha
+
         self.snd = snd
         self.loader = loader
         self.render = render
@@ -62,6 +102,46 @@ bla bla blab la... .
         self.setup() # also apply custom stuff
         self.detach()
         self.path.setTransparency(TransparencyAttrib.MAlpha)
+
+    def empty_midi_func(self):
+        print("channel: " + str(self.midi_channel)
+            + " | control: " + str(self.midi_control)
+            + " | value: " + str(self.midi_value)
+            + " | note: " + str(self.midi_note)
+            + " | velocity: " + str(self.midi_velocity))
+
+    def receive_midi_control(self, channel, control, value, time):
+        self.midi_channel = channel
+        self.midi_control = control
+        self.midi_value = value
+        self.midi_time = time
+        self.update_by_midi_control()
+
+    def receive_midi_note_on(self, channel, note, velocity, time):
+        self.midi_channel = channel
+        self.midi_note = note 
+        self.midi_velocity = velocity
+        self.midi_time = time
+        self.update_by_midi_note_on()
+
+    def receive_midi_note_off(self, channel, note, velocity, time):
+        self.midi_channel = channel
+        self.midi_note = note 
+        self.midi_velocity = velocity
+        self.midi_time = time
+        self.update_by_midi_note_off()
+
+    def update_by_midi_control(self):
+        x = self.midi_control_functions[self.midi_control]
+        x()
+
+    def update_by_midi_note_on(self):
+        x = self.midi_note_on_functions[self.midi_note]
+        x()
+
+    def update_by_midi_note_off(self):
+        x = self.midi_note_off_functions[self.midi_note]
+        x()
 
     def getBeat(self):
         self.sndX, self.sndY, self.sndZ = self.snd.getBeat()
@@ -104,10 +184,10 @@ bla bla blab la... .
         self.path.setP(self.path, -self.visualMovementSpeed)
 
     def rollLeft(self):
-        self.path.setR(self.path, +self.visualMovementSpeed)
+        self.path.setR(self.path, -self.visualMovementSpeed)
 
     def rollRight(self):
-        self.path.setR(self.path, -self.visualMovementSpeed)
+        self.path.setR(self.path, +self.visualMovementSpeed)
 
     def effect0(self):
         pass
@@ -301,3 +381,39 @@ bla bla blab la... .
         if self.visualMovementSpeedToggle : return "speed"
         if self.scaleToggle : return "scale"
         else: return "nothing"
+
+
+    def midi_scale(self):
+        self.setScale(self.midi_value/12.7)
+
+    def midi_speed(self):
+        self.visualMovementSpeed = (self.midi_value-63) / 6.35
+
+    def midi_transparency(self):
+        self.setAlpha(self.midi_value/127.0)
+
+    def midi_color_red(self):
+        self.red = self.midi_value/127.0
+        self.path.setColorScale(self.red, self.green, self.blue, self.alpha)
+    
+    def midi_color_green(self):
+        self.green = self.midi_value/127.0
+        self.path.setColorScale(self.red, self.green, self.blue, self.alpha)
+
+    def midi_color_blue(self):
+        self.blue = self.midi_value/127.0
+        self.path.setColorScale(self.red, self.green, self.blue, self.alpha)
+
+    def midi_color_alpha(self):
+        self.alpha = self.midi_value/127.0
+        self.path.setColorScale(self.red, self.green, self.blue, self.alpha)
+
+    def midi_strobo_alpha(self):
+        self.setAlpha(self.midi_velocity/127.0)      
+
+    def midi_negative_strobo_alpha_0(self):
+        self.midi_velocity_previous = self.midi_velocity
+        self.setAlpha(0.0)
+
+    def midi_negative_strobo_alpha(self):
+        self.setAlpha(self.midi_velocity_previous/127.0)

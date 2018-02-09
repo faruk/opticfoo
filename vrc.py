@@ -28,10 +28,16 @@ from panda3d.core import Vec3, FrameBufferProperties, GraphicsPipe, WindowProper
 from operationmap import operationMap
 from hud import HUD
 from gui import GUI
-#from gui import GUI
+from otherOperations import OtherOperations
+from cameraOperations import CameraOperations
+#from midiOperations import MidiOperations
 from soundanalyzer import SoundAnalyzer
 from visuals.visuals import VisualFactory
 import sys
+
+from panda3d.core import loadPrcFileData
+loadPrcFileData("", "want-directtools #t")
+loadPrcFileData("", "want-tk #t")
 
 loadPrcFile('Config.prc')
 #loadPrcFileData('', 'undecorated t')
@@ -81,6 +87,9 @@ class VRC(ShowBase):
         self.heading = 180
         self.pitch = 0
 
+        # enable shader
+        #self.render.setShaderAuto()
+            
         # allocate visuals
         self.visuals = {}
         self.factory = VisualFactory(
@@ -99,7 +108,7 @@ class VRC(ShowBase):
         self.otherCam = self.makeCamera(self.otherWin)
         self.camSpeed = 1.0
         self.cam.setPos(0,-100,0)
-        self.camAfterMath() # cam synchronisation
+        #self.camAfterMath() # cam synchronisation
 
         # setup preview cam to see orientation grid
         self.cam.node().setCameraMask(BitMask32.bit(0))
@@ -114,6 +123,11 @@ class VRC(ShowBase):
         # GUI
         self.startTk()
         self.gui = GUI(self)
+
+        # Other Operations
+        self.otherOps = OtherOperations(self)
+        self.camOps = CameraOperations(self)
+        #self.midiOps = MidiOperations(self)
 
         # initialize keyboard event system for usage evaluation
 
@@ -156,6 +170,8 @@ class VRC(ShowBase):
         self.accept('page_up-up', self.setOperation, ['page_up-up'])
         self.accept('page_down', self.setOperation, ['page_down'])
         self.accept('page_down-up', self.setOperation, ['page_down-up'])
+        self.accept('enter', self.setOperation, ['enter'])
+        self.accept('enter-up', self.setOperation, ['enter-up'])
         self.accept('1', self.setOperation, ['1'])
         self.accept('1-up', self.setOperation, ['1-up'])
         self.accept('2', self.setOperation, ['2'])
@@ -222,9 +238,10 @@ class VRC(ShowBase):
         # setup task manager
         self.taskMgr.doMethodLater(0.3, self.displayOperationHud, 'operationHud')
         self.taskMgr.doMethodLater(0.5, self.updateGui, 'gui')
-        self.taskMgr.add(self.executeOperation, 'action', sort = 1, priority = 2)
+        self.taskMgr.add(self.camOps.executeOperations, 'camaction', sort = 1, priority = 2)
+        self.taskMgr.add(self.executeOperations, 'action', sort = 1, priority = 2)
         self.taskMgr.add(self.spreadTheBeat, 'sound', sort = 1, priority = 1)
-        self.taskMgr.add(self.controlCamera, 'cam', sort = 1, priority = 1)
+        self.taskMgr.add(self.camOps.controlCamera, 'cam', sort = 1, priority = 1)
 
     # exit properly on window close
     def exit(self):
@@ -263,60 +280,62 @@ class VRC(ShowBase):
         if key == "c" : self.mode = 'cam'
         if self.mode == "escaped" : self.setMode(key)
         if self.mode == "visual" : self.setVisualOperation(key)
-        if self.mode == "cam" : self.setCamOperation(key)
+        if self.mode == "cam" : self.camOps.setCamOperation(key)
         if self.mode == "light" : self.setLightOperation(key)
+        if self.mode == "other" : self.setOtherOperation(key)
         if key == 'escape' : self.mode = 'escaped'
 
     # keys for setting mode if escaped
     def setMode(self, key):
         if key == "v" : self.mode = 'visual'
         if key == "c" : self.mode = 'cam'
-        if key == "b" : self.mode = 'music'
+        if key == "b" : self.mode = 'other'
         if key == "n" : self.mode = 'light'
         self.setOperationMap('mode', self.mode)
-
-    def setCamOperation(self, key):
-        if key == 'a' : self.setOperationMap('cam-left', 1)
-        if key == 'a-up' : self.setOperationMap('cam-left', 0)
-        if key == 'd' : self.setOperationMap('cam-right', 1)
-        if key == 'd-up' : self.setOperationMap('cam-right', 0)
-        if key == 'w' : self.setOperationMap('cam-forward', 1)
-        if key == 'w-up' : self.setOperationMap('cam-forward', 0)
-        if key == 's' : self.setOperationMap('cam-backward', 1)
-        if key == 's-up' : self.setOperationMap('cam-backward', 0)
-        if key == 'h' : self.setOperationMap('cam-rotate-left', 1)
-        if key == 'h-up' : self.setOperationMap('cam-rotate-left', 0)
-        if key == 'l' : self.setOperationMap('cam-rotate-right', 1)
-        if key == 'l-up' : self.setOperationMap('cam-rotate-right', 0)
-        if key == 'j' : self.setOperationMap('cam-rotate-down', 1)
-        if key == 'j-up' : self.setOperationMap('cam-rotate-down', 0)
-        if key == 'k' : self.setOperationMap('cam-rotate-up', 1)
-        if key == 'k-up' : self.setOperationMap('cam-rotate-up', 0)
-        if key == 'i' : self.setOperationMap('cam-roll-right', 1)
-        if key == 'i-up' : self.setOperationMap('cam-roll-right', 0)
-        if key == 'u' : self.setOperationMap('cam-roll-left', 1)
-        if key == 'u-up' : self.setOperationMap('cam-roll-left', 0)
-        if key == 'space' : self.setOperationMap('cam-up', 1)
-        if key == 'space-up' : self.setOperationMap('cam-up', 0)
-        if key == 'shift' : self.setOperationMap('cam-down', 1)
-        if key == 'shift-up' : self.setOperationMap('cam-down', 0)
-        if key == 'r' : self.setOperationMap('cam-reset', 1)
-        if key == 'r-up': self.setOperationMap('cam-reset', 0)
-        if key == 'f':
-            self.setOperationMap('cam-sync-toggle', -self.op['cam-sync-toggle'])
-            self.camAfterMath()
-        if key == 'g':
-            self.setOperationMap('cam-fix-toggle', -self.op['cam-fix-toggle'])
-            self.camAfterMath()
-        if key == 't':
-            self.setOperationMap('cam-sync-to', -self.op['cam-sync-to'])
-            self.camAfterMath()
-        if key == "wheel-up" : self.increaseCamSpeed()
-        if key == "wheel-down" : self.decreaseCamSpeed()
-        if key == 'mouse1' :
-            self.setOperationMap('cam-mouse-control', 1)
-            self.win.movePointer(0, 100, 100)
-        if key == 'mouse1-up' : self.setOperationMap('cam-mouse-control', 0)
+    
+#
+#    def setCamOperation(self, key):
+#        if key == 'a' : self.setOperationMap('cam-left', 1)
+#        if key == 'a-up' : self.setOperationMap('cam-left', 0)
+#        if key == 'd' : self.setOperationMap('cam-right', 1)
+#        if key == 'd-up' : self.setOperationMap('cam-right', 0)
+#        if key == 'w' : self.setOperationMap('cam-forward', 1)
+#        if key == 'w-up' : self.setOperationMap('cam-forward', 0)
+#        if key == 's' : self.setOperationMap('cam-backward', 1)
+#        if key == 's-up' : self.setOperationMap('cam-backward', 0)
+#        if key == 'h' : self.setOperationMap('cam-rotate-left', 1)
+#        if key == 'h-up' : self.setOperationMap('cam-rotate-left', 0)
+#        if key == 'l' : self.setOperationMap('cam-rotate-right', 1)
+#        if key == 'l-up' : self.setOperationMap('cam-rotate-right', 0)
+#        if key == 'j' : self.setOperationMap('cam-rotate-down', 1)
+#        if key == 'j-up' : self.setOperationMap('cam-rotate-down', 0)
+#        if key == 'k' : self.setOperationMap('cam-rotate-up', 1)
+#        if key == 'k-up' : self.setOperationMap('cam-rotate-up', 0)
+#        if key == 'i' : self.setOperationMap('cam-roll-right', 1)
+#        if key == 'i-up' : self.setOperationMap('cam-roll-right', 0)
+#        if key == 'u' : self.setOperationMap('cam-roll-left', 1)
+#        if key == 'u-up' : self.setOperationMap('cam-roll-left', 0)
+#        if key == 'space' : self.setOperationMap('cam-up', 1)
+#        if key == 'space-up' : self.setOperationMap('cam-up', 0)
+#        if key == 'shift' : self.setOperationMap('cam-down', 1)
+#        if key == 'shift-up' : self.setOperationMap('cam-down', 0)
+#        if key == 'r' : self.setOperationMap('cam-reset', 1)
+#        if key == 'r-up': self.setOperationMap('cam-reset', 0)
+#        if key == 'f':
+#            self.setOperationMap('cam-sync-toggle', -self.op['cam-sync-toggle'])
+#            self.camAfterMath()
+#        if key == 'g':
+#            self.setOperationMap('cam-fix-toggle', -self.op['cam-fix-toggle'])
+#            self.camAfterMath()
+#        if key == 't':
+#            self.setOperationMap('cam-sync-to', -self.op['cam-sync-to'])
+#            self.camAfterMath()
+#        if key == "wheel-up" : self.increaseCamSpeed()
+#        if key == "wheel-down" : self.decreaseCamSpeed()
+#        if key == 'mouse1' :
+#            self.setOperationMap('cam-mouse-control', 1)
+#            self.win.movePointer(0, 100, 100)
+#        if key == 'mouse1-up' : self.setOperationMap('cam-mouse-control', 0)
 
     def setVisualOperation(self,key):
         if key == 'a' : self.setVisualOperationMap('visual-left', 1)
@@ -391,6 +410,9 @@ class VRC(ShowBase):
         if key == 't': self.activeVisual.setTransparencyToggle()
         if key == 'r': self.activeVisual.resetOperationMap()
 
+    def setOtherOperation(self, key):
+        self.otherOps.setOperation(key)
+
     # set vrc operation map
     def setOperationMap(self, key, value):
         self.op[key] = value
@@ -404,27 +426,12 @@ class VRC(ShowBase):
         if self.activeVisual != None:
             self.activeVisual.keyUpEvent(key)
 
-    def executeOperation(self, task):
-        # camera operations
-        if self.op['cam-left'] == 1: self.moveCamLeft()
-        if self.op['cam-right'] == 1: self.moveCamRight()
-        if self.op['cam-up'] == 1: self.moveCamUp()
-        if self.op['cam-down'] == 1: self.moveCamDown()
-        if self.op['cam-forward'] == 1: self.moveCamForward()
-        if self.op['cam-backward'] == 1: self.moveCamBackward()
-        if self.op['cam-rotate-left'] == 1: self.rotateCamLeft()
-        if self.op['cam-rotate-right'] == 1: self.rotateCamRight()
-        if self.op['cam-rotate-up'] == 1: self.rotateCamUp()
-        if self.op['cam-rotate-down'] == 1: self.rotateCamDown()
-        if self.op['cam-roll-left'] == 1: self.rollCamLeft()
-        if self.op['cam-roll-right'] == 1: self.rollCamRight()
-        if self.op['cam-reset'] == 1: self.resetCam()
-
+    def executeOperations(self, task):
         # visual operations
         map(lambda x: x.update(), self.visuals.values())
 
         return task.cont
-
+    """
     def moveCamLeft(self):
         self.cam.setX(self.cam, -self.camSpeed)
         self.camAfterMath()
@@ -513,6 +520,7 @@ class VRC(ShowBase):
 
     def setCamSpeed(self, value):
         self.camSpeed = value
+    """
 
     def displayInfo(self):
         self.hud.updateHUD()

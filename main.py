@@ -26,8 +26,8 @@ from vrc import VRC
 import sys
 
 if __name__ == "__main__":
-    x = 1600 
-    y = 900
+    x = 1024
+    y = 768
     try:
         x = int(sys.argv[1])
         y = int(sys.argv[2])

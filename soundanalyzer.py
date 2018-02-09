@@ -43,6 +43,7 @@ class SoundAnalyzer(threading.Thread):
         # setup alsaaudio lib to listen on microphone
         self.rate = 44100
         self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE,alsaaudio.PCM_NONBLOCK)
+        #self.inp = alsaaudio.PCM(alsaaudio.PCM_PLAYBACK,alsaaudio.PCM_NONBLOCK)
         self.inp.setchannels(1)
         self.inp.setrate(self.rate)
         self.inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)

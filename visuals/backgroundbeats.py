@@ -6,26 +6,34 @@ from visual import visual
 class BackgroundBeat(visual):
 
     def setup(self):
+        self.tex = MovieTexture('textures/astronaut.avi')
+        assert self.tex.read('textures/astronaut.avi')
         self.lastBeat = 0
         self.maxMag = 0
         self.path.removeNode()
         self.path = self.render.attachNewNode("bgb")
         self.path.setTransparency(TransparencyAttrib.MAlpha)
+        self.cardmaker = CardMaker("lol")
+        self.cardmaker.setFrameFullscreenQuad
+        self.cardmaker.setUvRange(self.tex)
+        self.card = NodePath(self.cardmaker.generate())
+        self.card.reparentTo(self.path)
         self.cards = []
         self.cardPaths = []
         for i in range(0, 10*10):
-            self.cards.append(CardMaker("background beat card"+str(i)))
-            self.cardPaths.append(NodePath(self.cards[i].generate()))
-            self.cardPaths[i].reparentTo(self.path)
+            self.cards.append(self.card.copyTo(self.path))
         coords = [-10, -8, -6, -4, -2, 0, 2, 4, 6, 8]
         index = 0
         for i in range(0,10):
             for k in range(0,10):
-                self.cardPaths[index].setPos(coords[i], 0, coords[k])
+                self.cards[index].setPos(coords[i], 0, coords[k])
                 index = index + 1
+
         self.colorLerp = LerpColorInterval(self.path, 0.5, (1,1,1,1), (1,0,0,1))
         self.transparencyLerp = LerpFunc(self.flashWhite,
             fromData = 1, toData = 0, duration = 0.5, name = "transFlash")
+        self.path.setTwoSided(1)
+        self.path.setTexture(self.tex)
 
     def performBeat(self):
         self.lastBeat = self.sndX
@@ -39,3 +47,10 @@ class BackgroundBeat(visual):
 
     def flashWhite(self, i):
         self.path.setAlphaScale(i)
+
+    def effect0(self):
+        if self.tex.isPlaying():
+            self.tex.stop()
+            self.tex.clear()
+        else:
+            self.tex.play()
